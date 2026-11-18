@@ -30,7 +30,7 @@
 
   header {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
     margin-bottom: 16px;
@@ -38,6 +38,7 @@
   h1 { font-size: 17px; margin: 0; font-weight: 600; letter-spacing: .2px; }
   .sub { font-size: 12px; color: var(--dim); margin-top: 2px; }
 
+  .headerRight { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
   .status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--dim); }
   .dot {
     width: 9px; height: 9px; border-radius: 50%;
@@ -45,6 +46,28 @@
   }
   .dot.on { background: var(--green); box-shadow: 0 0 8px rgba(46,204,113,.7); }
   .dot.busy { background: var(--amber); }
+
+  .battery {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 11px; color: var(--dim);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 3px 9px; background: var(--panel);
+    font-variant-numeric: tabular-nums;
+  }
+  .glyph {
+    position: relative; width: 20px; height: 10px;
+    border: 1.5px solid currentColor; border-radius: 2px;
+  }
+  .glyph::after {
+    content: ""; position: absolute; right: -4px; top: 2.5px;
+    width: 2px; height: 4px; background: currentColor; border-radius: 1px;
+  }
+  .level { position: absolute; top: 1.5px; bottom: 1.5px; left: 1.5px; width: 0%;
+           background: currentColor; border-radius: 1px; transition: width .3s; }
+  .battery.ok { color: var(--green); }
+  .battery.mid { color: var(--amber); }
+  .battery.low { color: var(--red); }
+  .chg { font-size: 9px; letter-spacing: .7px; color: var(--green); display: none; }
 
   button {
     font: inherit;
@@ -61,7 +84,6 @@
   button:disabled { opacity: .4; cursor: default; }
   button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   button.primary:hover:not(:disabled) { background: #2f6ae0; }
-  button.danger { color: var(--red); }
 
   .card {
     background: var(--panel);
@@ -104,9 +126,11 @@
   .row > * { flex: 1 1 auto; }
 
   .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .metrics.four { grid-template-columns: repeat(4, 1fr); }
   .metric { background: #0b0e13; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
   .metric .k { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .6px; }
   .metric .v { font-size: 18px; font-variant-numeric: tabular-nums; margin-top: 3px; }
+  .metric .u { font-size: 11px; color: var(--dim); }
 
   .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
   label { display: block; font-size: 11px; color: var(--dim); margin-bottom: 5px; }
@@ -124,7 +148,7 @@
   .hint { font-size: 11px; color: var(--dim); line-height: 1.6; margin-top: 10px; }
   .log { font-size: 11px; color: var(--dim); font-family: ui-monospace, Consolas, monospace; height: 54px; overflow: hidden; }
   .warn { color: var(--amber); font-size: 12px; margin-top: 10px; }
-  a { color: var(--accent); }
+  .quality { font-size: 11px; margin-top: 8px; color: var(--amber); min-height: 15px; }
 </style>
 </head>
 <body>
@@ -135,9 +159,16 @@
       <h1>MyoSense</h1>
       <div class="sub">Muscle activation biofeedback</div>
     </div>
-    <div class="status">
-      <span class="dot" id="dot"></span>
-      <span id="statusText">not connected</span>
+    <div class="headerRight">
+      <div class="status">
+        <span class="dot" id="dot"></span>
+        <span id="statusText">not connected</span>
+      </div>
+      <div class="battery" id="battPill" style="display:none">
+        <span class="glyph"><span class="level" id="battLevel"></span></span>
+        <span id="battText">--</span>
+        <span class="chg" id="battChg">CHG</span>
+      </div>
     </div>
   </header>
 
@@ -153,10 +184,11 @@
       <div class="zone" id="zone"></div>
     </div>
     <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+    <div class="quality" id="quality"></div>
 
     <div class="metrics">
-      <div class="metric"><div class="k">RMS</div><div class="v" id="rms">-- <span style="font-size:11px;color:#8b98a9">mV</span></div></div>
-      <div class="metric"><div class="k">Peak</div><div class="v" id="peak">-- <span style="font-size:11px;color:#8b98a9">%</span></div></div>
+      <div class="metric"><div class="k">RMS</div><div class="v" id="rms">-- <span class="u">mV</span></div></div>
+      <div class="metric"><div class="k">Peak</div><div class="v" id="peak">-- <span class="u">%</span></div></div>
       <div class="metric"><div class="k">Reps</div><div class="v" id="reps">0</div></div>
     </div>
 
@@ -186,7 +218,16 @@
     </div>
     <div class="metric" style="margin-top:12px">
       <div class="k">Time in zone (last rep)</div>
-      <div class="v" id="inZone">0.0 <span style="font-size:11px;color:#8b98a9">s</span></div>
+      <div class="v" id="inZone">0.0 <span class="u">s</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="metrics four" style="margin-top:0">
+      <div class="metric"><div class="k">Session</div><div class="v" id="sessDur">0:00</div></div>
+      <div class="metric"><div class="k">Reps</div><div class="v" id="sessReps">0</div></div>
+      <div class="metric"><div class="k">Peak</div><div class="v" id="sessPeak">0 <span class="u">%</span></div></div>
+      <div class="metric"><div class="k">Total in zone</div><div class="v" id="sessZone">0.0 <span class="u">s</span></div></div>
     </div>
   </div>
 
@@ -221,17 +262,25 @@ const ui = {
   inZone: el("inZone"),
   log: el("log"),
   warn: el("warn"),
+  quality: el("quality"),
   lo: el("lo"),
   hi: el("hi"),
   btnConnect: el("btnConnect"),
   btnCal: el("btnCal"),
   btnReset: el("btnReset"),
   btnCsv: el("btnCsv"),
+  battPill: el("battPill"),
+  battLevel: el("battLevel"),
+  battText: el("battText"),
+  battChg: el("battChg"),
+  sessDur: el("sessDur"),
+  sessReps: el("sessReps"),
+  sessPeak: el("sessPeak"),
+  sessZone: el("sessZone"),
 };
 
 const state = {
   device: null,
-  server: null,
   rxChar: null,
   buffer: "",
   peak: 0,
@@ -239,7 +288,8 @@ const state = {
   mvc: 0,
   inRep: false,
   repZoneMs: 0,
-  lastZoneAt: 0,
+  zoneTotalMs: 0,
+  lastSampleAt: 0,
   calibrating: false,
   calStartedAt: 0,
   rows: [],
@@ -258,6 +308,13 @@ function showWarn(msg) {
 
 function logLine(text) {
   ui.log.textContent = text;
+}
+
+function clockText(ms) {
+  const total = Math.floor(ms / 1000);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return m + ":" + String(s).padStart(2, "0");
 }
 
 function zoneBounds() {
@@ -282,8 +339,23 @@ function colour(act) {
   return "linear-gradient(90deg, #8a6d1f, #f2b134)";
 }
 
-function onSample(mean, rms, act, cal) {
+function updateBattery(mv, pct, charging) {
+  if (!isFinite(mv) || mv <= 0) {
+    ui.battPill.style.display = "none";
+    return;
+  }
+  ui.battPill.style.display = "inline-flex";
+  const level = Math.max(0, Math.min(100, pct));
+  ui.battLevel.style.width = level + "%";
+  ui.battText.textContent = level + "% · " + (mv / 1000).toFixed(2) + "V";
+  ui.battPill.className = "battery " + (level > 50 ? "ok" : level > 20 ? "mid" : "low");
+  ui.battChg.style.display = charging ? "inline" : "none";
+}
+
+function onSample(mean, rms, act, cal, battMv, battPct, chg, clipped) {
   const now = performance.now();
+  const dt = state.lastSampleAt ? now - state.lastSampleAt : 0;
+  state.lastSampleAt = now;
 
   if (cal) {
     state.calibrating = true;
@@ -299,10 +371,10 @@ function onSample(mean, rms, act, cal) {
   ui.actVal.textContent = act.toFixed(0);
   ui.fill.style.width = Math.min(act, 100) + "%";
   ui.fill.style.background = colour(act);
-  ui.rms.innerHTML = rms.toFixed(2) + ' <span style="font-size:11px;color:#8b98a9">mV</span>';
+  ui.rms.innerHTML = rms.toFixed(2) + ' <span class="u">mV</span>';
 
   if (act > state.peak) state.peak = act;
-  ui.peak.innerHTML = state.peak.toFixed(0) + ' <span style="font-size:11px;color:#8b98a9">%</span>';
+  ui.peak.innerHTML = state.peak.toFixed(0) + ' <span class="u">%</span>';
 
   if (act > 0.05 && rms > 0) {
     const mvc = (rms / act) * 100;
@@ -312,30 +384,44 @@ function onSample(mean, rms, act, cal) {
     }
   }
 
+  updateBattery(battMv, battPct, chg);
+
+  ui.quality.textContent = clipped
+    ? "Front end is sitting at a supply rail — check the Candy supply and the ground."
+    : "";
+
   const [lo, hi] = zoneBounds();
   const inZone = act >= lo && act <= hi;
 
   if (!state.inRep && act > hi) {
     state.inRep = true;
     state.repZoneMs = 0;
-    state.lastZoneAt = now;
   } else if (state.inRep && act < lo) {
     state.inRep = false;
     state.reps += 1;
     ui.reps.textContent = String(state.reps);
+    ui.sessReps.textContent = String(state.reps);
   }
 
-  if (state.inRep) {
-    if (inZone && state.lastZoneAt) state.repZoneMs += now - state.lastZoneAt;
-    state.lastZoneAt = now;
-    ui.inZone.innerHTML = (state.repZoneMs / 1000).toFixed(1) +
-      ' <span style="font-size:11px;color:#8b98a9">s</span>';
+  if (state.inRep && inZone && dt > 0 && dt < 1000) {
+    state.repZoneMs += dt;
+    state.zoneTotalMs += dt;
+    ui.inZone.innerHTML = (state.repZoneMs / 1000).toFixed(1) + ' <span class="u">s</span>';
+    ui.sessZone.innerHTML = (state.zoneTotalMs / 1000).toFixed(1) + ' <span class="u">s</span>';
   }
+
+  ui.sessDur.textContent = clockText(now - state.connectedAt);
+  ui.sessPeak.innerHTML = state.peak.toFixed(0) + ' <span class="u">%</span>';
 
   const t = ((now - state.connectedAt) / 1000).toFixed(2);
-  state.rows.push([t, mean.toFixed(1), rms.toFixed(3), act.toFixed(2), cal ? 1 : 0]);
+  state.rows.push([
+    t, mean.toFixed(1), rms.toFixed(3), act.toFixed(2),
+    cal ? 1 : 0, battMv.toFixed(0), battPct, chg ? 1 : 0,
+  ]);
   logLine(t + " s   " + mean.toFixed(0) + " mV   " + rms.toFixed(2) +
-          " mV   " + act.toFixed(1) + "%" + (cal ? "   CALIBRATING" : ""));
+          " mV   " + act.toFixed(1) + "%" +
+          (battMv > 0 ? "   " + (battMv / 1000).toFixed(2) + " V" : "") +
+          (cal ? "   CALIBRATING" : ""));
 }
 
 function handleNotification(event) {
@@ -349,14 +435,22 @@ function handleNotification(event) {
     const line = state.buffer.slice(0, idx).trim();
     state.buffer = state.buffer.slice(idx + 1);
     if (!line) continue;
-    const parts = line.split(",");
-    if (parts.length < 3) continue;
-    const mean = parseFloat(parts[0]);
-    const rms = parseFloat(parts[1]);
-    const act = parseFloat(parts[2]);
-    const cal = parts.length > 3 ? parseFloat(parts[3]) === 1 : false;
+
+    const p = line.split(",");
+    if (p.length < 3) continue;
+
+    const mean = parseFloat(p[0]);
+    const rms = parseFloat(p[1]);
+    const act = parseFloat(p[2]);
     if (!isFinite(mean) || !isFinite(rms) || !isFinite(act)) continue;
-    onSample(mean, rms, act, cal);
+
+    const cal = p.length > 3 && parseFloat(p[3]) === 1;
+    const battMv = p.length > 4 ? parseFloat(p[4]) : 0;
+    const battPct = p.length > 5 ? parseFloat(p[5]) : 0;
+    const chg = p.length > 6 && parseFloat(p[6]) === 1;
+    const clipped = p.length > 7 && parseFloat(p[7]) === 1;
+
+    onSample(mean, rms, act, cal, battMv, battPct, chg, clipped);
   }
 }
 
@@ -393,7 +487,13 @@ async function connect() {
     state.mvc = 0;
     state.inRep = false;
     state.repZoneMs = 0;
+    state.zoneTotalMs = 0;
+    state.lastSampleAt = 0;
     ui.reps.textContent = "0";
+    ui.sessReps.textContent = "0";
+    ui.sessPeak.innerHTML = '0 <span class="u">%</span>';
+    ui.sessZone.innerHTML = '0.0 <span class="u">s</span>';
+    ui.sessDur.textContent = "0:00";
     ui.mvcRef.textContent = "not calibrated";
 
     setStatus("connected", "on");
@@ -420,10 +520,8 @@ function onDisconnected() {
   ui.actVal.textContent = "--";
 }
 
-async function disconnect() {
-  if (state.device && state.device.gatt.connected) {
-    state.device.gatt.disconnect();
-  }
+function disconnect() {
+  if (state.device && state.device.gatt.connected) state.device.gatt.disconnect();
 }
 
 async function sendCommand(cmd) {
@@ -445,9 +543,17 @@ function saveCsv() {
     showWarn("Nothing recorded yet.");
     return;
   }
-  const header = "t_s,mean_mV,rms_mV,activation_pct,calibrating\n";
+  const header = "t_s,mean_mV,rms_mV,activation_pct,calibrating,batt_mV,batt_pct,charging\n";
   const body = state.rows.map((r) => r.join(",")).join("\n");
-  const blob = new Blob([header + body], { type: "text/csv" });
+  const summary = [
+    "# session summary",
+    "# duration_s," + ((performance.now() - state.connectedAt) / 1000).toFixed(1),
+    "# reps," + state.reps,
+    "# peak_activation_pct," + state.peak.toFixed(1),
+    "# time_in_zone_s," + (state.zoneTotalMs / 1000).toFixed(1),
+    "# mvc_reference_mV," + state.mvc.toFixed(2),
+  ].join("\n");
+  const blob = new Blob([header + body + "\n" + summary + "\n"], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);

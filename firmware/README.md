@@ -102,7 +102,7 @@ Upload `team_ble/team_ble.ino` with the same IDE settings as above. The USB seri
 | TX (notify) | `6E400003-…` | board → phone/laptop, payload `mean,rms,activation,calibrating` |
 | RX (write) | `6E400002-…` | phone/laptop → board, send `C` to calibrate or `R` to reset |
 
-Payload example: `1665,54.47,0.0,0` — mean mV, RMS mV, activation %, calibrating flag. One line every 100 ms.
+Payload example: `1665,54.47,0.0,0,3980,72,1,0` — mean mV, RMS mV, activation %, calibrating, battery mV, battery %, charging, flags (bit 0 = front end at a rail). One line every 100 ms. The line is longer than a default 20-byte BLE packet, so the firmware splits it and the client reassembles on the newline.
 
 ### From a phone
 
@@ -127,3 +127,30 @@ Notes:
 - BLE must be on, and the laptop must not be connected to the board from the phone.
 - Throughput is comfortable: ~17 bytes at 10 Hz.
 - The radio runs on core 0 and the sampling loop on core 1, so the 2 kHz cadence is unaffected, but expect a few dropped samples when a client connects.
+
+## 8. Battery and charging telemetry
+
+The board cannot see its own battery until you give it a divider. Two resistors of the **same value** (100 kΩ is ideal; 47 kΩ or 10 kΩ work too).
+
+```
+HW-373 OUT+ ──[ R1 ]──●──[ R2 ]── GND
+                      │
+                    GPIO1
+```
+
+| | |
+|---|---|
+| Tap point | HW-373 `OUT+` (that is the cell, not the boost output) |
+| Ratio | `(R1 + R2) / R2` — with two equal resistors that is **2.0** |
+| At 4.2 V pack | 2.1 V at the pin (safe; the ADC limit is 3.3 V) |
+| Firmware constant | `BATT_DIVIDER` in `team_ble.ino` |
+
+**Before connecting the pin**, meter the divider node: it must read exactly half the pack voltage. If it reads higher, stop — the GPIO would see more than 3.3 V.
+
+What you get:
+
+- Pack voltage mapped to a percentage through a Li-ion discharge curve (3.30 V = 0 %, 4.20 V = 100 %).
+- A charging flag. With `CHRG_PIN -1` it is inferred from a rising pack voltage over roughly 8 s; charging shows up once the level has climbed about 20 mV.
+- A rail flag so the app can warn you that the front end is pinned.
+
+Leaving `BATT_PIN` unconnected is harmless: the readings sit near 0 V and the app simply hides the battery pill. Do not wire the divider to the 5 V boost output — that would read 2.5 V and report nonsense.

@@ -14,7 +14,9 @@ A single-file web app that connects to the board over Bluetooth LE and turns the
 | MVC reference | The mV value behind 100 %, derived from the calibration |
 | Reps | Counted when activation rises past the high value and falls below the low one |
 | Time in zone | How long the last rep was held inside the band |
-| Save CSV | Downloads the whole session: `t_s, mean_mV, rms_mV, activation_pct, calibrating` |
+| Battery pill | Pack voltage and percentage, with `CHG` while charging (needs the divider in `firmware/README.md` §8) |
+| Session card | Duration, reps, peak, total time in zone |
+| Save CSV | Downloads the session plus a summary block |
 
 Buttons:
 
