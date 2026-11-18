@@ -20,6 +20,7 @@ project/
 ├─ PROJECT_PLAN.md               ← full plan: what to build, how to proceed, workstreams, timeline
 ├─ CURRENT_DESIGN.md             ← source of truth for current hardware status, pending decisions and interpretation limits
 ├─ PROTOTYPE_BENCH_TEST_HANDOFF.md ← next-session hardware identification, safe power and one-channel test procedure
+├─ HARDWARE_BATTERY.md            ← optional battery-level and charging wiring (resistor divider, GPIO1)
 ├─ firmware/                      ← team_mvc.ino (USB serial) and team_ble.ino (Bluetooth LE) + firmware/README.md (step-by-step)
 ├─ tools/                         ← emg_capture.py (log + stats), emg_plot.py (replay/plot) and emg_ble.py (BLE log)
 ├─ app/                           ← meter.html: browser app that turns the BLE stream into a live activation meter

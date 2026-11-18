@@ -37,6 +37,7 @@ The prototype measures electrical activity and displays **activation amplitude r
 - Full power chain: `1000 mAh cell → HW-373 (charge + protection) → HW-106 (3.7 V→5 V) → USB-C → ESP32-S3 → 3V3 → EMG module`.
 - For USB bench testing, power the ESP32 board from the laptop with no person connected to electrodes. For body recording, use the battery/boost chain with no charger or USB-to-computer cable attached.
 - Confirm battery chemistry, polarity and charger current compatibility. Check polarity with a multimeter before connecting; do not charge a damaged cell or charge while electrodes are attached to a person.
+- Optional telemetry: a two-resistor divider from HW-373 `OUT+` to GPIO1 lets the BLE firmware report pack voltage and an estimated charge percentage. Wiring, meter checks and the approximation limits are in `HARDWARE_BATTERY.md`. It is not required for the EMG measurement, and the build currently running on the board has no battery tap.
 
 ## Sensor decision
 

@@ -26,6 +26,7 @@ This file records what is published, what is deliberately kept local, and why. T
 | `RECONCILIATION_AND_ADDITIONS.md` | 9 KB | Corrections applied to the original research draft |
 | `REFERENCES_INDEX.md` | 15 KB | File-to-citation map for the local archive |
 | `PROTOTYPE_BENCH_TEST_HANDOFF.md` | 11 KB | Hardware identification, safe power sequence, bench procedure |
+| `HARDWARE_BATTERY.md` | 9 KB | Optional battery-level / charging wiring, with meter checks and failure modes |
 | `firmware/team_mvc/team_mvc.ino` | 4 KB | The working acquisition sketch |
 | `firmware/team_ble/team_ble.ino` | 7 KB | Same acquisition, plus the BLE stream |
 | `firmware/README.md` | 5 KB | Upload instructions, IDE settings, expected output, troubleshooting |

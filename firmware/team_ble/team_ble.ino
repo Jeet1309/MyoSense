@@ -144,6 +144,12 @@ void updateBattery() {
 
   batt_pct = batteryPercent(batt_mV_smooth);
 
+  // No divider fitted -> the pin floats near 0 V. Report "absent"
+  // so the app hides the battery pill instead of showing 0 %.
+  if (batt_mV_smooth < 2600.0f) {
+    batt_pct = -1;
+  }
+
   // --- charging state ---
   if (CHRG_PIN >= 0) {
 
@@ -381,7 +387,7 @@ void calculateRMS() {
       rms_mV,
       activation,
       calibrating ? 1 : 0,
-      batt_mV_smooth,
+      (batt_pct >= 0) ? batt_mV_smooth : 0.0f,
       batt_pct,
       charging ? 1 : 0,
       clipped ? 1 : 0

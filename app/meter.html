@@ -340,7 +340,7 @@ function colour(act) {
 }
 
 function updateBattery(mv, pct, charging) {
-  if (!isFinite(mv) || mv <= 0) {
+  if (!isFinite(mv) || mv < 2600) {
     ui.battPill.style.display = "none";
     return;
   }
