@@ -183,3 +183,65 @@ block at the end, so a charge-level-over-time plot comes straight out of the log
 | Percentage jumps around | long unshielded wires to the divider; keep them short, and the 1 s averaging will settle it |
 | Always shows `CHG` | inferred flag stuck on a slowly rising voltage; visible only while the level climbs |
 | Number drifts while flexing | expected: the load modulates the pack voltage slightly; the curve is coarse by design |
+
+---
+
+## 10. Charging the cell
+
+**Yes — you charge by plugging a 5 V USB supply into the HW-373's own USB-C socket.** That
+socket is a charger input only; it is not connected to the ESP32's USB socket, so charging
+does not put 5 V on the board's VBUS.
+
+```
+USB charger ──► HW-373 (CC/CV charge + protection) ──► cell 3.0–4.2 V
+                                                          │
+                                          HW-106 boost ───┘──► 5 V ──► ESP32
+```
+
+The board keeps running during a charge, because it is fed by the boost converter, not by the
+charger directly. Two things follow from that, and both are worth knowing before you demo.
+
+### No power-path management
+
+The TP4056 charges the cell while the load draws from the same node. It has no idea the load
+exists, so:
+
+- Charge current is shared. With a ~1 A default and roughly 100 mA of load, the cell gets
+  about 900 mA — a full charge from empty takes roughly 1.5 h, a little longer with the
+  radio and the EMG front end running.
+- **Termination is unreliable.** The charger ends a cycle on a current threshold; a load
+  keeps that current above the threshold, so CV may run long or keep topping the cell. The
+  cell just sits at about 4.15–4.2 V while plugged in. That is mild stress, acceptable for a
+  bench prototype, not a recipe for permanently leaving it on the charger.
+- The reported percentage is meaningless during a charge: you are reading the charge voltage,
+  not the cells's state, so it will show near 100 % and `CHG` the whole time.
+
+### Recommended procedure
+
+**For an unattended or full charge:** power the board down (unplug the boost from the ESP32,
+or switch off the load), plug the charger into the HW-373, wait for the LED to change, then
+disconnect the charger before powering the board again. This gives a clean, fully terminated
+charge.
+
+**For a quick top-up while demonstrating:** plugging the charger into the HW-373 with
+everything running is electrically safe — the charger and the board are separated by the cell
+and the boost. Just do not expect a precise termination, and do not leave it charging for
+hours.
+
+### Non-negotiables
+
+- **Never charge with electrodes on a person.** No exceptions, even with a phone charger.
+- Do not have the laptop's USB cable connected to the board at the same time as the boost —
+  that puts two 5 V sources on the ESP32's VBUS.
+- Use a real 5 V supply rated at 1 A or more, with a cable you trust. A weak or noisy charger
+  will brown out the boost and the board will reset mid-session.
+- The cell should feel warm, never hot. If it is hot, stop and check `Rprog` (2.4 kΩ ≈ 500 mA).
+- Never charge a swollen, dented or punctured cell, and never leave a charging cell
+  unattended on a flammable surface.
+
+### LEDs
+
+On the HW-373 the charge LED typically lights while a charge is in progress and the second LED
+lights when the cycle terminates. With the load connected, treat "still charging" as normal
+and use the pack voltage as the real indicator: about 4.2 V means it is full.
+
