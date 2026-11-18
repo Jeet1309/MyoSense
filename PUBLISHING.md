@@ -27,9 +27,13 @@ This file records what is published, what is deliberately kept local, and why. T
 | `REFERENCES_INDEX.md` | 15 KB | File-to-citation map for the local archive |
 | `PROTOTYPE_BENCH_TEST_HANDOFF.md` | 11 KB | Hardware identification, safe power sequence, bench procedure |
 | `firmware/team_mvc/team_mvc.ino` | 4 KB | The working acquisition sketch |
+| `firmware/team_ble/team_ble.ino` | 7 KB | Same acquisition, plus the BLE stream |
 | `firmware/README.md` | 5 KB | Upload instructions, IDE settings, expected output, troubleshooting |
 | `tools/emg_capture.py` | 8 KB | Logs the serial stream to CSV with a statistics summary |
 | `tools/emg_plot.py` | 10 KB | Plots a captured log |
+| `tools/emg_ble.py` | 8 KB | Logs the BLE stream to CSV with a statistics summary |
+| `app/meter.html` | 16 KB | Browser app: live activation meter, target zone, rep counter, CSV export |
+| `app/README.md` | 3 KB | How to run the app and why Web Bluetooth needs HTTPS/localhost |
 | `my deep-research-report.md` | 11 KB | Original draft, kept for provenance (its errors are corrected in `RECONCILIATION_AND_ADDITIONS.md`) |
 | `.gitignore` | 1 KB | Keeps the repo clean |
 

@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MyoSense — EMG Activation Meter</title>
+<style>
+  :root {
+    --bg: #0e1116;
+    --panel: #161b23;
+    --line: #232a35;
+    --text: #e6edf3;
+    --dim: #8b98a9;
+    --green: #2ecc71;
+    --amber: #f2b134;
+    --red: #e8595a;
+    --accent: #3d7eff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 18px;
+  }
+  .app { width: 100%; max-width: 620px; }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  h1 { font-size: 17px; margin: 0; font-weight: 600; letter-spacing: .2px; }
+  .sub { font-size: 12px; color: var(--dim); margin-top: 2px; }
+
+  .status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--dim); }
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: #3a4453; transition: background .2s;
+  }
+  .dot.on { background: var(--green); box-shadow: 0 0 8px rgba(46,204,113,.7); }
+  .dot.busy { background: var(--amber); }
+
+  button {
+    font: inherit;
+    font-size: 13px;
+    padding: 9px 14px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  button:hover:not(:disabled) { border-color: #3a4453; background: #1b212b; }
+  button:disabled { opacity: .4; cursor: default; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.primary:hover:not(:disabled) { background: #2f6ae0; }
+  button.danger { color: var(--red); }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+
+  .bignum { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .bignum .val { font-size: 56px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .bignum .pct { font-size: 22px; color: var(--dim); }
+  .bignum .tag { margin-left: auto; font-size: 11px; color: var(--dim); text-align: right; line-height: 1.5; }
+
+  .track {
+    position: relative;
+    height: 34px;
+    background: #0b0e13;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 14px 0 6px;
+  }
+  .fill {
+    position: absolute; inset: 0 auto 0 0;
+    width: 0%;
+    background: linear-gradient(90deg, #1f9d55, #2ecc71);
+    transition: width .08s linear, background .2s;
+  }
+  .zone {
+    position: absolute; top: 0; bottom: 0;
+    background: rgba(61,126,255,.14);
+    border-left: 1px dashed rgba(61,126,255,.55);
+    border-right: 1px dashed rgba(61,126,255,.55);
+    pointer-events: none;
+  }
+  .ticks { display: flex; justify-content: space-between; font-size: 10px; color: #5b6675; margin-bottom: 2px; }
+
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .row > * { flex: 1 1 auto; }
+
+  .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .metric { background: #0b0e13; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .metric .k { font-size: 10px; color: var(--dim); text-transform: uppercase; letter-spacing: .6px; }
+  .metric .v { font-size: 18px; font-variant-numeric: tabular-nums; margin-top: 3px; }
+
+  .settings { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
+  label { display: block; font-size: 11px; color: var(--dim); margin-bottom: 5px; }
+  input[type=number] {
+    width: 100%;
+    font: inherit;
+    font-size: 14px;
+    padding: 8px 10px;
+    background: #0b0e13;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--text);
+  }
+
+  .hint { font-size: 11px; color: var(--dim); line-height: 1.6; margin-top: 10px; }
+  .log { font-size: 11px; color: var(--dim); font-family: ui-monospace, Consolas, monospace; height: 54px; overflow: hidden; }
+  .warn { color: var(--amber); font-size: 12px; margin-top: 10px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div>
+      <h1>MyoSense</h1>
+      <div class="sub">Muscle activation biofeedback</div>
+    </div>
+    <div class="status">
+      <span class="dot" id="dot"></span>
+      <span id="statusText">not connected</span>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="bignum">
+      <span class="val" id="actVal">--</span>
+      <span class="pct">%</span>
+      <span class="tag">MVC reference<br><span id="mvcRef">not calibrated</span></span>
+    </div>
+
+    <div class="track">
+      <div class="fill" id="fill"></div>
+      <div class="zone" id="zone"></div>
+    </div>
+    <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+
+    <div class="metrics">
+      <div class="metric"><div class="k">RMS</div><div class="v" id="rms">-- <span style="font-size:11px;color:#8b98a9">mV</span></div></div>
+      <div class="metric"><div class="k">Peak</div><div class="v" id="peak">-- <span style="font-size:11px;color:#8b98a9">%</span></div></div>
+      <div class="metric"><div class="k">Reps</div><div class="v" id="reps">0</div></div>
+    </div>
+
+    <div class="row" style="margin-top:14px">
+      <button class="primary" id="btnConnect">Connect</button>
+      <button id="btnCal" disabled>Calibrate MVC</button>
+      <button id="btnReset" disabled>Reset</button>
+      <button id="btnCsv" disabled>Save CSV</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="settings">
+      <div>
+        <label for="lo">Target zone — low (%)</label>
+        <input type="number" id="lo" value="60" min="0" max="100" step="5">
+      </div>
+      <div>
+        <label for="hi">Target zone — high (%)</label>
+        <input type="number" id="hi" value="80" min="0" max="100" step="5">
+      </div>
+    </div>
+    <div class="hint">
+      Start a repetition below the low value, drive into the blue band, and hold it there.
+      A rep is counted when activation rises above the high value and falls back below the low value.
+      Stay in the band for clean, controlled work; overshoot into red means you are relying on momentum.
+    </div>
+    <div class="metric" style="margin-top:12px">
+      <div class="k">Time in zone (last rep)</div>
+      <div class="v" id="inZone">0.0 <span style="font-size:11px;color:#8b98a9">s</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="log" id="log">waiting for data</div>
+  </div>
+
+  <div class="warn" id="warn" style="display:none"></div>
+
+</div>
+
+<script>
+"use strict";
+
+const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+const TX_UUID      = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+const RX_UUID      = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+const DEVICE_NAME  = "MyoSense-EMG";
+
+const el = (id) => document.getElementById(id);
+
+const ui = {
+  dot: el("dot"),
+  statusText: el("statusText"),
+  actVal: el("actVal"),
+  fill: el("fill"),
+  zone: el("zone"),
+  rms: el("rms"),
+  peak: el("peak"),
+  reps: el("reps"),
+  mvcRef: el("mvcRef"),
+  inZone: el("inZone"),
+  log: el("log"),
+  warn: el("warn"),
+  lo: el("lo"),
+  hi: el("hi"),
+  btnConnect: el("btnConnect"),
+  btnCal: el("btnCal"),
+  btnReset: el("btnReset"),
+  btnCsv: el("btnCsv"),
+};
+
+const state = {
+  device: null,
+  server: null,
+  rxChar: null,
+  buffer: "",
+  peak: 0,
+  reps: 0,
+  mvc: 0,
+  inRep: false,
+  repZoneMs: 0,
+  lastZoneAt: 0,
+  calibrating: false,
+  calStartedAt: 0,
+  rows: [],
+  connectedAt: 0,
+};
+
+function setStatus(text, mode) {
+  ui.statusText.textContent = text;
+  ui.dot.className = "dot" + (mode ? " " + mode : "");
+}
+
+function showWarn(msg) {
+  ui.warn.style.display = msg ? "block" : "none";
+  ui.warn.textContent = msg || "";
+}
+
+function logLine(text) {
+  ui.log.textContent = text;
+}
+
+function zoneBounds() {
+  let lo = Number(ui.lo.value);
+  let hi = Number(ui.hi.value);
+  if (!isFinite(lo)) lo = 60;
+  if (!isFinite(hi)) hi = 80;
+  if (hi <= lo) hi = Math.min(100, lo + 5);
+  return [Math.max(0, Math.min(100, lo)), Math.max(0, Math.min(100, hi))];
+}
+
+function drawZone() {
+  const [lo, hi] = zoneBounds();
+  ui.zone.style.left = lo + "%";
+  ui.zone.style.width = (hi - lo) + "%";
+}
+
+function colour(act) {
+  const [lo, hi] = zoneBounds();
+  if (act > hi) return "linear-gradient(90deg, #c0392b, #e8595a)";
+  if (act >= lo) return "linear-gradient(90deg, #1f9d55, #2ecc71)";
+  return "linear-gradient(90deg, #8a6d1f, #f2b134)";
+}
+
+function onSample(mean, rms, act, cal) {
+  const now = performance.now();
+
+  if (cal) {
+    state.calibrating = true;
+    if (!state.calStartedAt) state.calStartedAt = now;
+    const left = Math.max(0, 5 - (now - state.calStartedAt) / 1000);
+    setStatus("calibrating — " + left.toFixed(1) + " s", "busy");
+  } else if (state.calibrating) {
+    state.calibrating = false;
+    state.calStartedAt = 0;
+    setStatus("connected", "on");
+  }
+
+  ui.actVal.textContent = act.toFixed(0);
+  ui.fill.style.width = Math.min(act, 100) + "%";
+  ui.fill.style.background = colour(act);
+  ui.rms.innerHTML = rms.toFixed(2) + ' <span style="font-size:11px;color:#8b98a9">mV</span>';
+
+  if (act > state.peak) state.peak = act;
+  ui.peak.innerHTML = state.peak.toFixed(0) + ' <span style="font-size:11px;color:#8b98a9">%</span>';
+
+  if (act > 0.05 && rms > 0) {
+    const mvc = (rms / act) * 100;
+    if (Math.abs(mvc - state.mvc) > state.mvc * 0.02) {
+      state.mvc = mvc;
+      ui.mvcRef.textContent = mvc.toFixed(1) + " mV";
+    }
+  }
+
+  const [lo, hi] = zoneBounds();
+  const inZone = act >= lo && act <= hi;
+
+  if (!state.inRep && act > hi) {
+    state.inRep = true;
+    state.repZoneMs = 0;
+    state.lastZoneAt = now;
+  } else if (state.inRep && act < lo) {
+    state.inRep = false;
+    state.reps += 1;
+    ui.reps.textContent = String(state.reps);
+  }
+
+  if (state.inRep) {
+    if (inZone && state.lastZoneAt) state.repZoneMs += now - state.lastZoneAt;
+    state.lastZoneAt = now;
+    ui.inZone.innerHTML = (state.repZoneMs / 1000).toFixed(1) +
+      ' <span style="font-size:11px;color:#8b98a9">s</span>';
+  }
+
+  const t = ((now - state.connectedAt) / 1000).toFixed(2);
+  state.rows.push([t, mean.toFixed(1), rms.toFixed(3), act.toFixed(2), cal ? 1 : 0]);
+  logLine(t + " s   " + mean.toFixed(0) + " mV   " + rms.toFixed(2) +
+          " mV   " + act.toFixed(1) + "%" + (cal ? "   CALIBRATING" : ""));
+}
+
+function handleNotification(event) {
+  const view = event.target.value;
+  let chunk = "";
+  for (let i = 0; i < view.byteLength; i++) chunk += String.fromCharCode(view.getUint8(i));
+  state.buffer += chunk;
+
+  let idx;
+  while ((idx = state.buffer.indexOf("\n")) >= 0) {
+    const line = state.buffer.slice(0, idx).trim();
+    state.buffer = state.buffer.slice(idx + 1);
+    if (!line) continue;
+    const parts = line.split(",");
+    if (parts.length < 3) continue;
+    const mean = parseFloat(parts[0]);
+    const rms = parseFloat(parts[1]);
+    const act = parseFloat(parts[2]);
+    const cal = parts.length > 3 ? parseFloat(parts[3]) === 1 : false;
+    if (!isFinite(mean) || !isFinite(rms) || !isFinite(act)) continue;
+    onSample(mean, rms, act, cal);
+  }
+}
+
+async function connect() {
+  if (!navigator.bluetooth) {
+    showWarn("This browser has no Web Bluetooth. Use Chrome or Edge on desktop, " +
+             "or Chrome on Android. Safari and Firefox are not supported.");
+    return;
+  }
+  showWarn("");
+  try {
+    setStatus("requesting device", "busy");
+    const device = await navigator.bluetooth.requestDevice({
+      filters: [{ name: DEVICE_NAME }],
+      optionalServices: [SERVICE_UUID],
+    });
+
+    state.device = device;
+    device.addEventListener("gattserverdisconnected", onDisconnected);
+
+    setStatus("connecting", "busy");
+    const server = await device.gatt.connect();
+    const service = await server.getPrimaryService(SERVICE_UUID);
+    const tx = await service.getCharacteristic(TX_UUID);
+    state.rxChar = await service.getCharacteristic(RX_UUID);
+
+    tx.addEventListener("characteristicvaluechanged", handleNotification);
+    await tx.startNotifications();
+
+    state.connectedAt = performance.now();
+    state.rows = [];
+    state.peak = 0;
+    state.reps = 0;
+    state.mvc = 0;
+    state.inRep = false;
+    state.repZoneMs = 0;
+    ui.reps.textContent = "0";
+    ui.mvcRef.textContent = "not calibrated";
+
+    setStatus("connected", "on");
+    ui.btnConnect.textContent = "Disconnect";
+    ui.btnCal.disabled = false;
+    ui.btnReset.disabled = false;
+    ui.btnCsv.disabled = false;
+  } catch (err) {
+    console.error(err);
+    setStatus("not connected");
+    if (String(err).includes("User cancelled")) return;
+    showWarn("Could not connect: " + err.message +
+             " — make sure no phone or other app is already connected to the board.");
+  }
+}
+
+function onDisconnected() {
+  setStatus("disconnected");
+  ui.btnConnect.textContent = "Connect";
+  ui.btnCal.disabled = true;
+  ui.btnReset.disabled = true;
+  ui.btnCsv.disabled = true;
+  ui.fill.style.width = "0%";
+  ui.actVal.textContent = "--";
+}
+
+async function disconnect() {
+  if (state.device && state.device.gatt.connected) {
+    state.device.gatt.disconnect();
+  }
+}
+
+async function sendCommand(cmd) {
+  if (!state.rxChar) return;
+  const bytes = new TextEncoder().encode(cmd);
+  try {
+    if (state.rxChar.properties.writeWithoutResponse) {
+      await state.rxChar.writeValueWithoutResponse(bytes);
+    } else {
+      await state.rxChar.writeValue(bytes);
+    }
+  } catch (err) {
+    showWarn("Could not send '" + cmd + "': " + err.message);
+  }
+}
+
+function saveCsv() {
+  if (!state.rows.length) {
+    showWarn("Nothing recorded yet.");
+    return;
+  }
+  const header = "t_s,mean_mV,rms_mV,activation_pct,calibrating\n";
+  const body = state.rows.map((r) => r.join(",")).join("\n");
+  const blob = new Blob([header + body], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  a.href = url;
+  a.download = "myosense-" + stamp + ".csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+ui.btnConnect.addEventListener("click", () => {
+  if (state.device && state.device.gatt.connected) disconnect();
+  else connect();
+});
+
+ui.btnCal.addEventListener("click", () => {
+  state.calStartedAt = performance.now();
+  state.calibrating = true;
+  setStatus("calibrating — 5.0 s", "busy");
+  sendCommand("C");
+});
+
+ui.btnReset.addEventListener("click", () => {
+  state.mvc = 0;
+  ui.mvcRef.textContent = "not calibrated";
+  state.peak = 0;
+  sendCommand("R");
+});
+
+ui.btnCsv.addEventListener("click", saveCsv);
+ui.lo.addEventListener("input", drawZone);
+ui.hi.addEventListener("input", drawZone);
+
+drawZone();
+
+if (!navigator.bluetooth) {
+  showWarn("This browser has no Web Bluetooth. Open this page in Chrome or Edge " +
+           "(desktop or Android). On iPhone use the Bluefy browser.");
+}
+</script>
+</body>
+</html>

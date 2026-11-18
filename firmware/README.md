@@ -2,10 +2,13 @@
 
 **The working sketch is `team_mvc/team_mvc.ino`** — the build saved on 18 November that runs on the board. It samples GPIO4 at 2 kHz, removes the DC/mean baseline, computes a 100 ms RMS, and prints `Mean`, `RMS` and `Activation %` at 10 Hz. Press `C` on the serial line to capture a 5-second MVC reference.
 
+**`team_ble/team_ble.ino`** is the same acquisition code with a Bluetooth LE service added, so the values arrive on a phone or laptop instead of a cable. See §7.
+
 Supporting tools:
 
 - `../tools/emg_capture.py` — runs the sketch's output into a CSV log with a summary (auto-detects the port, understands both CSV and `Mean/RMS/Activation` lines).
 - `../tools/emg_plot.py` — replays that CSV as a plot (`--replay`), or plots a live CSV stream.
+- `../tools/emg_ble.py` — reads the BLE stream into a CSV log with the same kind of summary.
 
 ---
 
@@ -86,3 +89,41 @@ Caveats worth knowing:
 | `Mean` pinned at 0 or ~3.3 V | Front-end output at a rail — check module supply |
 | Envelope never changes | `OUT` not on GPIO4, or module unpowered |
 | Envelope huge at rest | Poor electrode contact or floating input — re-prep and re-zero |
+
+## 7. Bluetooth (BLE) stream
+
+Upload `team_ble/team_ble.ino` with the same IDE settings as above. The USB serial output stays identical, so you can watch both paths at once.
+
+**Device name:** `MyoSense-EMG`
+**Service:** Nordic UART (`6E400001-B5A3-F393-E0A9-E50E24DCCA9E`)
+
+| Characteristic | UUID suffix | Direction |
+|---|---|---|
+| TX (notify) | `6E400003-…` | board → phone/laptop, payload `mean,rms,activation,calibrating` |
+| RX (write) | `6E400002-…` | phone/laptop → board, send `C` to calibrate or `R` to reset |
+
+Payload example: `1665,54.47,0.0,0` — mean mV, RMS mV, activation %, calibrating flag. One line every 100 ms.
+
+### From a phone
+
+1. Install **nRF Connect for Mobile** (Android / iOS, free).
+2. Scan; `MyoSense-EMG` appears.
+3. Connect → expand the Nordic UART service → tap the TX characteristic (three arrows) → **subscribe**.
+4. Values stream in. To calibrate, open the RX characteristic, choose **UTF-8**, type `C`, send.
+
+Only one client at a time — disconnect the phone before connecting from the laptop.
+
+### From the laptop
+
+```
+python -m pip install bleak
+python tools/emg_ble.py --list
+python tools/emg_ble.py --seconds 15 --out logs/ble.csv
+python tools/emg_ble.py --calibrate --seconds 20 --out logs/ble_mvc.csv
+```
+
+Notes:
+
+- BLE must be on, and the laptop must not be connected to the board from the phone.
+- Throughput is comfortable: ~17 bytes at 10 Hz.
+- The radio runs on core 0 and the sampling loop on core 1, so the 2 kHz cadence is unaffected, but expect a few dropped samples when a client connects.

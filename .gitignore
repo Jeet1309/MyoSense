@@ -29,6 +29,13 @@ MyoSense_A2_DH803.pptx
 EMG Project Communications Subsystem Plan.pdf
 
 # ---------------------------------------------------------------
+# Arduino IDE scratch sketch (duplicate of firmware/team_mvc)
+# and local screenshots
+# ---------------------------------------------------------------
+/sketch_nov18a/
+Screenshot*.png
+
+# ---------------------------------------------------------------
 # Personal hardware photos
 # ---------------------------------------------------------------
 WhatsApp Image*.jpeg

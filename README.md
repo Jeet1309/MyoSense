@@ -20,8 +20,9 @@ project/
 ├─ PROJECT_PLAN.md               ← full plan: what to build, how to proceed, workstreams, timeline
 ├─ CURRENT_DESIGN.md             ← source of truth for current hardware status, pending decisions and interpretation limits
 ├─ PROTOTYPE_BENCH_TEST_HANDOFF.md ← next-session hardware identification, safe power and one-channel test procedure
-├─ firmware/                      ← team_mvc.ino (working ESP32-S3 sketch) + firmware/README.md (step-by-step)
-├─ tools/                         ← emg_capture.py (log + stats) and emg_plot.py (replay/plot)
+├─ firmware/                      ← team_mvc.ino (USB serial) and team_ble.ino (Bluetooth LE) + firmware/README.md (step-by-step)
+├─ tools/                         ← emg_capture.py (log + stats), emg_plot.py (replay/plot) and emg_ble.py (BLE log)
+├─ app/                           ← meter.html: browser app that turns the BLE stream into a live activation meter
 ├─ MUSCLE_ACTIVATION_AND_EXERCISE_SELECTION.md ← deep-dive on M9/M10: how the body makes EMG, how it varies by exercise, and the 2-muscle %MVC ratio
 ├─ share/                         ← share pack: from-scratch guide (Markdown + PDF), citation map and curated local references
 ├─ LITERATURE_REVIEW.md          ← annotated reading list (what to read and why), grouped by theme
@@ -48,6 +49,7 @@ project/
 1. **For a new reader, start with `share/EMG_WEARABLE_FROM_SCRATCH.pdf`** (or its Markdown source). It explains the project from physiology through the prototype and its limitations.
 2. **Read `PROTOTYPE_BENCH_TEST_HANDOFF.md`** to identify the photographed components and run the first safe bench test; use `CURRENT_DESIGN.md` for the live design status.
 2b. **To get a signal the same day**, follow `firmware/README.md`: upload `firmware/team_mvc/team_mvc.ino`, then run `python tools/emg_capture.py --seconds 10`.
+2c. **For the wireless version**, upload `firmware/team_ble/team_ble.ino` and open `app/meter.html` (see `app/README.md`) — a live activation bar, target zone, rep counter and CSV export.
 3. **Use `PROJECT_PLAN.md` and `DATASETS_AND_HARDWARE.md`** for work plan, wiring and sensor comparison.
 4. **Use `LITERATURE_REVIEW.md` and `REFERENCES_INDEX.md`** for the reading queue and source map. Selected open-access local PDFs are copied into `share/references/`; the full local archive remains in `references/pdfs/`.
 5. `MyoSense_A2_DH803.docx`, `MyoSense_A2_DH803.pptx` and `EMG Project Communications Subsystem Plan.pdf` are earlier course drafts. Their DFRobot SEN0240/generic ESP32 BOM is **superseded**; use the current design file instead.
