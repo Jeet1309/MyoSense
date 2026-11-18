@@ -1,0 +1,88 @@
+# Firmware and first activation test
+
+**The working sketch is `team_mvc/team_mvc.ino`** — the build saved on 18 November that runs on the board. It samples GPIO4 at 2 kHz, removes the DC/mean baseline, computes a 100 ms RMS, and prints `Mean`, `RMS` and `Activation %` at 10 Hz. Press `C` on the serial line to capture a 5-second MVC reference.
+
+Supporting tools:
+
+- `../tools/emg_capture.py` — runs the sketch's output into a CSV log with a summary (auto-detects the port, understands both CSV and `Mean/RMS/Activation` lines).
+- `../tools/emg_plot.py` — replays that CSV as a plot (`--replay`), or plots a live CSV stream.
+
+---
+
+## 1. Wiring
+
+| EMG board | ESP32-S3 board |
+|---|---|
+| `VCC` | `3V3` |
+| `GND` | `GND` |
+| `OUT` | `GPIO4` |
+
+Electrode inputs `IN+` / `IN−` / `REF` stay **unconnected** for the bench test.
+
+Power the ESP32 from the laptop with a USB **data** cable (not charge-only), using the socket marked **USB** (the native one). The socket marked `UART` needs a CP210x driver that is currently failing to install on this laptop.
+
+## 2. Arduino IDE settings
+
+- Board: **ESP32S3 Dev Module**
+- Flash Size: **16MB**, PSRAM: **OPI PSRAM**
+- **USB CDC On Boot: Enabled** — without this, the board enumerates but sends nothing over USB
+- Port: whichever COM port appears
+
+## 3. Upload and check
+
+1. Open `team_mvc/team_mvc.ino`, upload.
+2. Open Serial Monitor at **115200**.
+3. Expect:
+
+```
+================================
+ TEAM KRESIT - CANDY EMG
+ ESP32-S3 N16R8
+================================
+GPIO: 4
+Sampling Rate: 2000 Hz
+RMS Window: 100 ms
+--------------------------------
+System ready!
+Send C for MVC calibration.
+--------------------------------
+Mean: 1.62 mV | RMS: 0.481 mV | Activation: 0.0%
+```
+
+With the electrode inputs floating, `RMS` is small (roughly 0.1–1 mV) and steady. That proves the ADC and serial path work — it does not prove the sensor works.
+
+## 4. Capture and plot
+
+```
+python tools/emg_capture.py --seconds 10 --out logs/bench.csv
+python tools/emg_plot.py --replay logs/bench.csv --save-png logs/bench.png
+```
+
+`emg_capture.py` prints baseline, peak, drift and clipping at the end.
+
+## 5. Muscle test
+
+**Battery power only** — see the safety note in `../PROTOTYPE_BENCH_TEST_HANDOFF.md`.
+
+1. Apply electrodes: `IN+`/`IN−` over the muscle belly, `REF` on bone.
+2. Rest, then press `C` and hold a maximal contraction for 5 s. Repeat 3 times, resting 1–2 min.
+3. Record the task condition.
+4. `Activation %` is the task RMS divided by the calibrated MVC RMS.
+
+Caveats worth knowing:
+
+- The MVC is the **peak sample** in the 5 s window, so one noise spike inflates it. Average 3 consistent trials.
+- `Activation` is clamped to 100 %, which hides readings above the reference. If you see exactly 100.0%, suspect a weak MVC rather than a perfect contraction.
+- `RMS` here is the standard deviation of the window (AC amplitude), not an absolute voltage.
+
+## 6. Troubleshooting
+
+| Symptom | Likely cause |
+|---|---|
+| No COM port | Charge-only cable, or the `UART` socket without its driver |
+| Port exists, Serial Monitor blank | `USB CDC On Boot` is Disabled |
+| Upload fails to connect | Hold **BOOT**, tap **RESET**, release, upload |
+| Garbage characters | Not 115200 baud |
+| `Mean` pinned at 0 or ~3.3 V | Front-end output at a rail — check module supply |
+| Envelope never changes | `OUT` not on GPIO4, or module unpowered |
+| Envelope huge at rest | Poor electrode contact or floating input — re-prep and re-zero |

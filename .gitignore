@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------
+# Third-party material kept locally, not redistributed
+# ---------------------------------------------------------------
+# 102 MB of publisher PDFs (licences forbid re-hosting)
+references/pdfs/
+# 11 curated journal PDFs bundled for local reading
+share/references/*.pdf
+# ME 6114 lecture slides (instructor's material)
+/biomech/
+
+# ---------------------------------------------------------------
+# Other coursework, not part of this project
+# ---------------------------------------------------------------
+R1.pdf
+R2.pdf
+Wrist joint project at a glance.pdf
+Wrist_ROM_Mini_Literature_Review_and_Pilot_Study.pdf
+Team8_stage2_report.pdf
+writs_readings_ss.pdf
+me6114_project_imu.zip
+
+# ---------------------------------------------------------------
+# Generated media and superseded submissions
+# ---------------------------------------------------------------
+/videos/
+/figures/
+MyoSense_A2_DH803.docx
+MyoSense_A2_DH803.pptx
+EMG Project Communications Subsystem Plan.pdf
+
+# ---------------------------------------------------------------
+# Personal hardware photos
+# ---------------------------------------------------------------
+WhatsApp Image*.jpeg
+boosto .jpeg
+
+# ---------------------------------------------------------------
+# Local captures, build junk
+# ---------------------------------------------------------------
+/logs/
+__pycache__/
+*.pyc
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+Thumbs.db
+desktop.ini
+.DS_Store
