@@ -99,6 +99,11 @@ BLECharacteristic *pRx = NULL;
 bool deviceConnected = false;
 bool wasConnected = false;
 
+// ---- Acquisition health ----
+uint32_t sampleTicks = 0;
+uint16_t acqRateHz = 0;
+uint32_t rateMarkMs = 0;
+
 // ============================================
 // BATTERY
 // ============================================
@@ -469,13 +474,13 @@ void calculateRMS() {
   Serial.println();
 
   // ---- BLE ----
-  // mean,rms,activation,calibrating,batt_mV,batt_pct,charging,flags,rest_mV,mvc_mV
-  char line[80];
+  // mean,rms,activation,calibrating,batt_mV,batt_pct,charging,flags,rest_mV,mvc_mV,acq_hz
+  char line[88];
 
   snprintf(
       line,
       sizeof(line),
-      "%.0f,%.2f,%.1f,%d,%.0f,%d,%d,%d,%.2f,%.2f\n",
+      "%.0f,%.2f,%.1f,%d,%.0f,%d,%d,%d,%.2f,%.2f,%u\n",
       mean_mV,
       rms_mV,
       activation,
@@ -485,7 +490,8 @@ void calculateRMS() {
       charging ? 1 : 0,
       flags,
       rest_mV,
-      mvc_mV
+      mvc_mV,
+      acqRateHz
   );
 
   notifyLine(line);
@@ -575,6 +581,13 @@ void loop() {
 
   updateBattery();
 
+  // Achieved acquisition rate, sampled once a second.
+  if (millis() - rateMarkMs >= 1000) {
+    acqRateHz = (uint16_t)sampleTicks;
+    sampleTicks = 0;
+    rateMarkMs = millis();
+  }
+
   uint32_t currentTime = micros();
 
   if ((int32_t)(currentTime - nextSample) >= 0) {
@@ -583,6 +596,7 @@ void loop() {
 
     float voltage = (float)analogReadMilliVolts(EMG_PIN);
 
+    sampleTicks++;
     sumSignal += voltage;
     sumSquares += (double)voltage * voltage;
     sampleCount++;

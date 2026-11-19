@@ -230,6 +230,12 @@
       <div class="metric"><div class="k">Peak</div><div class="v" id="sessPeak">0 <span class="u">%</span></div></div>
       <div class="metric"><div class="k">Total in zone</div><div class="v" id="sessZone">0.0 <span class="u">s</span></div></div>
     </div>
+    <div class="metrics four" style="margin-top:10px">
+      <div class="metric"><div class="k">Acquisition</div><div class="v" id="acq">— <span class="u">Hz</span></div></div>
+      <div class="metric"><div class="k">Link</div><div class="v" id="link">— <span class="u">Hz</span></div></div>
+      <div class="metric"><div class="k">Drops</div><div class="v" id="drops">0</div></div>
+      <div class="metric"><div class="k">Clipped</div><div class="v" id="clipPct">0 <span class="u">%</span></div></div>
+    </div>
   </div>
 
   <div class="card">
@@ -279,6 +285,10 @@ const ui = {
   sessReps: el("sessReps"),
   sessPeak: el("sessPeak"),
   sessZone: el("sessZone"),
+  acq: el("acq"),
+  link: el("link"),
+  drops: el("drops"),
+  clipPct: el("clipPct"),
 };
 
 const state = {
@@ -298,6 +308,10 @@ const state = {
   restMv: 0,
   rows: [],
   connectedAt: 0,
+  acqHz: 0,
+  arrivals: [],
+  drops: 0,
+  clipRows: 0,
 };
 
 function setStatus(text, mode) {
@@ -373,7 +387,7 @@ function updateBattery(mv, pct, charging) {
   ui.battChg.style.display = charging ? "inline" : "none";
 }
 
-function onSample(mean, rms, act, cal, battMv, battPct, chg, clipped, restMv, mvcMv) {
+function onSample(mean, rms, act, cal, battMv, battPct, chg, clipped, restMv, mvcMv, acqHz) {
   const now = performance.now();
   const dt = state.lastSampleAt ? now - state.lastSampleAt : 0;
   state.lastSampleAt = now;
@@ -401,16 +415,53 @@ function onSample(mean, rms, act, cal, battMv, battPct, chg, clipped, restMv, mv
   if (mvcMv > 0) state.mvc = mvcMv;
 
   if (state.mvc > 0 || state.restMv > 0) {
-    ui.mvcRef.textContent =
-      (state.mvc > 0 ? state.mvc.toFixed(1) + " mV" : "—") +
-      (state.restMv > 0 ? " · rest " + state.restMv.toFixed(2) : "");
+    let tag = (state.mvc > 0 ? state.mvc.toFixed(1) + " mV" : "—");
+    if (state.restMv > 0) tag += " · rest " + state.restMv.toFixed(2);
+    if (state.mvc > 0 && state.restMv > 0.01) {
+      tag += " · " + Math.round(state.mvc / state.restMv) + "×";
+    }
+    ui.mvcRef.textContent = tag;
   }
 
   updateBattery(battMv, battPct, chg);
 
-  ui.quality.textContent = clipped
-    ? "Front end is sitting at a supply rail — check the Candy supply and the ground."
-    : "";
+  // ---- link health ----
+  const previous = state.arrivals.length ? state.arrivals[state.arrivals.length - 1] : 0;
+  if (previous && now - previous > 300) state.drops += 1;
+  state.arrivals.push(now);
+  while (state.arrivals.length && now - state.arrivals[0] > 3000) state.arrivals.shift();
+
+  const span = state.arrivals.length > 1 ? (now - state.arrivals[0]) / 1000 : 0;
+  if (span > 0.5) {
+    ui.link.innerHTML = ((state.arrivals.length - 1) / span).toFixed(1) + ' <span class="u">Hz</span>';
+  }
+  ui.drops.textContent = String(state.drops);
+
+  if (acqHz > 0) {
+    state.acqHz = acqHz;
+    ui.acq.innerHTML = acqHz + ' <span class="u">Hz</span>';
+  }
+
+  if (clipped) state.clipRows += 1;
+  if (state.rows.length) {
+    ui.clipPct.innerHTML = ((100 * state.clipRows) / state.rows.length).toFixed(1) + ' <span class="u">%</span>';
+  }
+
+  // ---- signal quality verdict ----
+  let quality = "";
+  if (clipped) {
+    quality = "Front end is sitting at a supply rail — check the Candy supply and the ground.";
+  } else if (state.mvc > 0 && state.restMv > 0 && state.mvc / state.restMv < 5) {
+    quality = "Weak reference: MVC is only " + (state.mvc / state.restMv).toFixed(1) +
+              "× the noise floor. Re-fit the electrodes and repeat calibration.";
+  } else if (state.acqHz > 0 && state.acqHz < 1700) {
+    quality = "Acquisition is " + state.acqHz + " Hz, below the 2 kHz target.";
+  } else if (state.drops > 20) {
+    quality = "Link has dropped " + state.drops + " frames so far.";
+  } else if (battPct >= 0 && battPct <= 15) {
+    quality = "Battery low (" + Math.round(battPct) + "%) — charge before the next session.";
+  }
+  ui.quality.textContent = quality;
 
   const [lo, hi] = zoneBounds();
   const inZone = act >= lo && act <= hi;
@@ -475,13 +526,14 @@ function handleNotification(event) {
     const stepFromBoard = p.length > 7 ? (parseFloat(p[7]) >> 1) & 3 : 0;
     const restMv = p.length > 8 ? parseFloat(p[8]) : 0;
     const mvcMv = p.length > 9 ? parseFloat(p[9]) : 0;
+    const acqHz = p.length > 10 ? parseFloat(p[10]) : 0;
 
     if (isFinite(stepFromBoard) && stepFromBoard !== state.calStep && stepFromBoard < 3) {
       state.calStep = stepFromBoard;
       updateCalLabel();
     }
 
-    onSample(mean, rms, act, cal, battMv, battPct, chg, clipped, restMv, mvcMv);
+    onSample(mean, rms, act, cal, battMv, battPct, chg, clipped, restMv, mvcMv, acqHz);
   }
 }
 
@@ -522,6 +574,13 @@ async function connect() {
     state.repZoneMs = 0;
     state.zoneTotalMs = 0;
     state.lastSampleAt = 0;
+    state.acqHz = 0;
+    state.arrivals = [];
+    state.drops = 0;
+    state.clipRows = 0;
+    ui.link.innerHTML = '— <span class="u">Hz</span>';
+    ui.drops.textContent = "0";
+    ui.clipPct.innerHTML = '0 <span class="u">%</span>';
     ui.reps.textContent = "0";
     ui.sessReps.textContent = "0";
     ui.sessPeak.innerHTML = '0 <span class="u">%</span>';

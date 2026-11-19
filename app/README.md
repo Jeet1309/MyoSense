@@ -16,7 +16,12 @@ A single-file web app that connects to the board over Bluetooth LE and turns the
 | Time in zone | How long the last rep was held inside the band |
 | Battery pill | Pack voltage and percentage, with `CHG` while charging (needs the divider in `firmware/README.md` §8) |
 | Session card | Duration, reps, peak, total time in zone |
+| Health card | Achieved acquisition rate, measured link rate, dropped frames, clipped-frame percentage |
 | Save CSV | Downloads the session plus a summary block |
+
+The quality line under the bar reports the first problem it finds: a rail-clamped front end, a
+weak MVC reference (MVC below 5× the noise floor), acquisition under 2 kHz, excessive dropped
+frames, or a low battery (≤ 15 %).
 
 Buttons:
 
