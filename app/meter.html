@@ -194,10 +194,11 @@
 
     <div class="row" style="margin-top:14px">
       <button class="primary" id="btnConnect">Connect</button>
-      <button id="btnCal" disabled>Calibrate MVC</button>
+      <button id="btnCal" disabled>Calibrate 1/3 · rest</button>
       <button id="btnReset" disabled>Reset</button>
       <button id="btnCsv" disabled>Save CSV</button>
     </div>
+    <div class="hint" id="calHint" style="margin-top:8px"></div>
   </div>
 
   <div class="card">
@@ -259,6 +260,7 @@ const ui = {
   peak: el("peak"),
   reps: el("reps"),
   mvcRef: el("mvcRef"),
+  calHint: el("calHint"),
   inZone: el("inZone"),
   log: el("log"),
   warn: el("warn"),
@@ -292,6 +294,8 @@ const state = {
   lastSampleAt: 0,
   calibrating: false,
   calStartedAt: 0,
+  calStep: 0,
+  restMv: 0,
   rows: [],
   connectedAt: 0,
 };
@@ -332,6 +336,23 @@ function drawZone() {
   ui.zone.style.width = (hi - lo) + "%";
 }
 
+const CAL_LABELS = [
+  "Calibrate 1/3 · rest",
+  "Calibrate 2/3 · MVC",
+  "Calibrate 3/3 · verify",
+];
+const CAL_HINTS = [
+  "Step 1 of 3 — stay completely relaxed for 5 s. This measures your noise floor.",
+  "Step 2 of 3 — contract maximally and hold for the full 5 s.",
+  "Step 3 of 3 — contract maximally again for 5 s. The stronger trial is kept.",
+];
+
+function updateCalLabel() {
+  const i = state.calStep % 3;
+  ui.btnCal.textContent = CAL_LABELS[i];
+  ui.calHint.textContent = CAL_HINTS[i];
+}
+
 function colour(act) {
   const [lo, hi] = zoneBounds();
   if (act > hi) return "linear-gradient(90deg, #c0392b, #e8595a)";
@@ -352,7 +373,7 @@ function updateBattery(mv, pct, charging) {
   ui.battChg.style.display = charging ? "inline" : "none";
 }
 
-function onSample(mean, rms, act, cal, battMv, battPct, chg, clipped) {
+function onSample(mean, rms, act, cal, battMv, battPct, chg, clipped, restMv, mvcMv) {
   const now = performance.now();
   const dt = state.lastSampleAt ? now - state.lastSampleAt : 0;
   state.lastSampleAt = now;
@@ -376,12 +397,13 @@ function onSample(mean, rms, act, cal, battMv, battPct, chg, clipped) {
   if (act > state.peak) state.peak = act;
   ui.peak.innerHTML = state.peak.toFixed(0) + ' <span class="u">%</span>';
 
-  if (act > 0.05 && rms > 0) {
-    const mvc = (rms / act) * 100;
-    if (Math.abs(mvc - state.mvc) > state.mvc * 0.02) {
-      state.mvc = mvc;
-      ui.mvcRef.textContent = mvc.toFixed(1) + " mV";
-    }
+  if (restMv > 0) state.restMv = restMv;
+  if (mvcMv > 0) state.mvc = mvcMv;
+
+  if (state.mvc > 0 || state.restMv > 0) {
+    ui.mvcRef.textContent =
+      (state.mvc > 0 ? state.mvc.toFixed(1) + " mV" : "—") +
+      (state.restMv > 0 ? " · rest " + state.restMv.toFixed(2) : "");
   }
 
   updateBattery(battMv, battPct, chg);
@@ -417,6 +439,7 @@ function onSample(mean, rms, act, cal, battMv, battPct, chg, clipped) {
   state.rows.push([
     t, mean.toFixed(1), rms.toFixed(3), act.toFixed(2),
     cal ? 1 : 0, battMv.toFixed(0), battPct, chg ? 1 : 0,
+    restMv.toFixed(2), mvcMv.toFixed(2),
   ]);
   logLine(t + " s   " + mean.toFixed(0) + " mV   " + rms.toFixed(2) +
           " mV   " + act.toFixed(1) + "%" +
@@ -449,8 +472,10 @@ function handleNotification(event) {
     const battPct = p.length > 5 ? parseFloat(p[5]) : 0;
     const chg = p.length > 6 && parseFloat(p[6]) === 1;
     const clipped = p.length > 7 && parseFloat(p[7]) === 1;
+    const restMv = p.length > 8 ? parseFloat(p[8]) : 0;
+    const mvcMv = p.length > 9 ? parseFloat(p[9]) : 0;
 
-    onSample(mean, rms, act, cal, battMv, battPct, chg, clipped);
+    onSample(mean, rms, act, cal, battMv, battPct, chg, clipped, restMv, mvcMv);
   }
 }
 
@@ -485,6 +510,8 @@ async function connect() {
     state.peak = 0;
     state.reps = 0;
     state.mvc = 0;
+    state.restMv = 0;
+    state.calStep = 0;
     state.inRep = false;
     state.repZoneMs = 0;
     state.zoneTotalMs = 0;
@@ -495,6 +522,7 @@ async function connect() {
     ui.sessZone.innerHTML = '0.0 <span class="u">s</span>';
     ui.sessDur.textContent = "0:00";
     ui.mvcRef.textContent = "not calibrated";
+    updateCalLabel();
 
     setStatus("connected", "on");
     ui.btnConnect.textContent = "Disconnect";
@@ -543,7 +571,7 @@ function saveCsv() {
     showWarn("Nothing recorded yet.");
     return;
   }
-  const header = "t_s,mean_mV,rms_mV,activation_pct,calibrating,batt_mV,batt_pct,charging\n";
+  const header = "t_s,mean_mV,rms_mV,activation_pct,calibrating,batt_mV,batt_pct,charging,rest_mV,mvc_mV\n";
   const body = state.rows.map((r) => r.join(",")).join("\n");
   const summary = [
     "# session summary",
@@ -552,6 +580,7 @@ function saveCsv() {
     "# peak_activation_pct," + state.peak.toFixed(1),
     "# time_in_zone_s," + (state.zoneTotalMs / 1000).toFixed(1),
     "# mvc_reference_mV," + state.mvc.toFixed(2),
+    "# rest_baseline_mV," + state.restMv.toFixed(2),
   ].join("\n");
   const blob = new Blob([header + body + "\n" + summary + "\n"], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
@@ -571,16 +600,21 @@ ui.btnConnect.addEventListener("click", () => {
 });
 
 ui.btnCal.addEventListener("click", () => {
+  setStatus("calibrating — 5.0 s", "busy");
   state.calStartedAt = performance.now();
   state.calibrating = true;
-  setStatus("calibrating — 5.0 s", "busy");
   sendCommand("C");
+  state.calStep = (state.calStep + 1) % 3;
+  ui.calHint.textContent = CAL_HINTS[(state.calStep + 2) % 3];
 });
 
 ui.btnReset.addEventListener("click", () => {
   state.mvc = 0;
-  ui.mvcRef.textContent = "not calibrated";
+  state.restMv = 0;
+  state.calStep = 0;
   state.peak = 0;
+  ui.mvcRef.textContent = "not calibrated";
+  updateCalLabel();
   sendCommand("R");
 });
 
@@ -589,6 +623,7 @@ ui.lo.addEventListener("input", drawZone);
 ui.hi.addEventListener("input", drawZone);
 
 drawZone();
+updateCalLabel();
 
 if (!navigator.bluetooth) {
   showWarn("This browser has no Web Bluetooth. Open this page in Chrome or Edge " +

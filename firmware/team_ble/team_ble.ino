@@ -10,9 +10,13 @@
 // ESP32-S3 N16R8
 // SINGLE CHANNEL EMG - BLE STREAM + BATTERY
 //
-// Same sampling and MVC logic as team_mvc.ino,
-// plus a Nordic-UART-style BLE service and
-// battery / charging telemetry.
+// Three-press calibration:
+//   1) rest baseline, 5 s relaxed
+//   2) MVC, 5 s maximal
+//   3) MVC verify, 5 s maximal (keeps the better)
+//
+// Activation is computed after removing the rest
+// baseline in quadrature, so rest reads near 0%.
 // ============================================
 
 // ---- EMG ----
@@ -23,7 +27,7 @@ const uint32_t SAMPLE_INTERVAL_US = 500;
 const uint16_t WINDOW_SIZE = 200;
 
 // ---- Battery ----
-// Divider: cell + --[ R1 100k ]-- node --[ R2 100k ]-- GND
+// Divider: cell + --[ R1 68k ]-- node --[ R2 68k ]-- GND
 // node -> BATT_PIN.  Ratio = (R1 + R2) / R2 = 2.0
 #define BATT_PIN 1              // ADC1_CH0
 const float BATT_DIVIDER = 2.0f;
@@ -32,8 +36,7 @@ const uint32_t BATT_INTERVAL_MS = 1000;
 // Charging indicator (optional).
 // The HW-373 CHRG pad sinks to GND while charging, but that pad sits behind an
 // LED tied to the 5 V rail, so probing it directly can put >3.3 V on a GPIO.
-// Leave this at -1 until you have a 10k series resistor to 3V3 and have measured
-// the pad voltage. With -1 the firmware infers charging from a rising pack voltage.
+// With -1 the firmware infers charging from a rising pack voltage.
 #define CHRG_PIN -1
 
 // ---- BLE ----
@@ -42,7 +45,7 @@ const uint32_t BATT_INTERVAL_MS = 1000;
 #define RX_UUID      "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 #define TX_UUID      "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
-// ---- Signal processing state ----
+// ---- Signal processing ----
 double sumSignal = 0.0;
 double sumSquares = 0.0;
 
@@ -51,13 +54,27 @@ uint16_t sampleCount = 0;
 float rms_mV = 0.0;
 float mean_mV = 0.0;
 
-bool calibrating = false;
+uint32_t nextSample = 0;
+
+// ---- Calibration state ----
+enum CalStage {
+  CAL_IDLE = 0,
+  CAL_REST,
+  CAL_MVC,
+  CAL_VERIFY
+};
+
+CalStage calStage = CAL_IDLE;
+
+float rest_mV = 0.0;        // measured noise floor
+float mvc_mV = 0.0;         // maximal voluntary contraction
+
+float calSum = 0.0;
+uint16_t calCount = 0;
+float calMax = 0.0;
 uint32_t calibrationStart = 0;
 
-float mvc_mV = 0.0;
-float calibrationMax = 0.0;
-
-uint32_t nextSample = 0;
+const uint32_t CAL_DURATION_MS = 5000;
 
 // ---- Battery state ----
 float batt_mV = 0.0;
@@ -78,11 +95,6 @@ BLECharacteristic *pRx = NULL;
 
 bool deviceConnected = false;
 bool wasConnected = false;
-
-// ---- Diagnostics ----
-uint16_t windowsThisSecond = 0;
-uint16_t windowsLastSecond = 0;
-uint32_t lastRateMark = 0;
 
 // ============================================
 // BATTERY
@@ -125,8 +137,6 @@ void updateBattery() {
 
   nextBattRead = millis() + BATT_INTERVAL_MS;
 
-  // Average a small burst so the ADC noise does not
-  // make the percentage jump around.
   uint32_t acc = 0;
 
   for (uint8_t i = 0; i < 8; i++) {
@@ -144,83 +154,140 @@ void updateBattery() {
 
   batt_pct = batteryPercent(batt_mV_smooth);
 
-  // No divider fitted -> the pin floats near 0 V. Report "absent"
-  // so the app hides the battery pill instead of showing 0 %.
   if (batt_mV_smooth < 2600.0f) {
     batt_pct = -1;
   }
 
-  // --- charging state ---
   if (CHRG_PIN >= 0) {
 
-    // HW-373 CHRG pad: pulled low while a charge is in progress.
-    // Guard against the pin floating high on boards without the pad.
     charging = (digitalRead(CHRG_PIN) == LOW);
 
   } else {
 
-    // Infer from the voltage trend over ~8 s.
     battHistory[battHistoryIndex] = batt_mV_smooth;
     battHistoryIndex = (battHistoryIndex + 1) % 8;
 
     if (battHistoryCount < 8) battHistoryCount++;
 
     if (battHistoryCount >= 8) {
-
       float oldest = battHistory[battHistoryIndex];
-      float delta = batt_mV_smooth - oldest;
-
-      chargingInferred = (delta > 20.0f);
+      chargingInferred = ((batt_mV_smooth - oldest) > 20.0f);
       charging = chargingInferred;
     }
   }
 }
 
 // ============================================
-// MVC CALIBRATION
+// CALIBRATION - three presses of 'C'
 // ============================================
 
-void startCalibration() {
+// Press 1 -> rest, press 2 -> MVC, press 3 -> verify, then it cycles.
+void advanceCalibration() {
 
-  calibrating = true;
-
+  calSum = 0.0;
+  calCount = 0;
+  calMax = 0.0;
   calibrationStart = millis();
-  calibrationMax = 0.0;
 
   Serial.println();
-  Serial.println("MVC CALIBRATION STARTED");
-  Serial.println("Contract your target muscle.");
+
+  if (calStage == CAL_IDLE) {
+
+    calStage = CAL_REST;
+
+    Serial.println("STEP 1/3 - REST BASELINE");
+    Serial.println("Stay completely relaxed for 5 s.");
+
+  } else if (calStage == CAL_REST) {
+
+    calStage = CAL_MVC;
+
+    Serial.println("STEP 2/3 - MVC");
+    Serial.println("Contract maximally and hold 5 s.");
+
+  } else {
+
+    calStage = CAL_VERIFY;
+
+    Serial.println("STEP 3/3 - MVC VERIFY");
+    Serial.println("Contract maximally again for 5 s.");
+  }
 }
 
 void resetCalibration() {
 
-  calibrating = false;
+  calStage = CAL_IDLE;
+
+  rest_mV = 0.0;
   mvc_mV = 0.0;
-  calibrationMax = 0.0;
+
+  calSum = 0.0;
+  calCount = 0;
+  calMax = 0.0;
 
   Serial.println();
-  Serial.println("MVC RESET - activation back to 0%");
+  Serial.println("CALIBRATION RESET - activation back to 0%");
 }
 
 void updateCalibration() {
 
-  if (!calibrating) return;
+  if (calStage == CAL_IDLE) return;
 
-  if (rms_mV > calibrationMax) {
-    calibrationMax = rms_mV;
+  // Rest is averaged over the window; MVC takes the peak window.
+  if (calStage == CAL_REST) {
+    calSum += rms_mV;
+    calCount++;
+  } else {
+    if (rms_mV > calMax) calMax = rms_mV;
   }
 
-  if (millis() - calibrationStart >= 5000) {
+  if (millis() - calibrationStart < CAL_DURATION_MS) return;
 
-    calibrating = false;
-    mvc_mV = calibrationMax;
+  if (calStage == CAL_REST) {
+
+    rest_mV = (calCount > 0) ? (calSum / calCount) : 0.0;
+    calStage = CAL_IDLE;
 
     Serial.println();
-    Serial.println("MVC CALIBRATION COMPLETED");
+    Serial.print("REST BASELINE: ");
+    Serial.print(rest_mV, 3);
+    Serial.println(" mV");
+    Serial.println("Press C for step 2 (MVC).");
 
+  } else if (calStage == CAL_MVC) {
+
+    mvc_mV = calMax;
+    calStage = CAL_IDLE;
+
+    Serial.println();
     Serial.print("MVC RMS: ");
     Serial.print(mvc_mV, 3);
     Serial.println(" mV");
+    Serial.println("Press C for step 3 (verify).");
+
+  } else {
+
+    bool improved = (calMax > mvc_mV);
+
+    if (improved) mvc_mV = calMax;
+
+    calStage = CAL_IDLE;
+
+    Serial.println();
+    Serial.print("VERIFY RMS: ");
+    Serial.print(calMax, 3);
+    Serial.print(" mV  ->  ");
+    Serial.print(improved ? "kept" : "kept previous best");
+    Serial.print(": ");
+    Serial.print(mvc_mV, 3);
+    Serial.println(" mV");
+
+    Serial.print("Ratio MVC/rest: ");
+    if (rest_mV > 0.001) {
+      Serial.println(mvc_mV / rest_mV, 1);
+    } else {
+      Serial.println("n/a (no baseline)");
+    }
   }
 }
 
@@ -255,7 +322,7 @@ class RxCallbacks : public BLECharacteristicCallbacks {
     char command = (char)data[0];
 
     if (command == 'C' || command == 'c') {
-      startCalibration();
+      advanceCalibration();
     } else if (command == 'R' || command == 'r') {
       resetCalibration();
     }
@@ -297,8 +364,6 @@ void startBle() {
   pAdv->start();
 }
 
-// Notify one text line, split only if the client
-// negotiated a small MTU.
 void notifyLine(const char *text) {
 
   if (!deviceConnected || pTx == NULL) return;
@@ -321,7 +386,7 @@ void notifyLine(const char *text) {
 }
 
 // ============================================
-// RMS CALCULATION
+// RMS AND ACTIVATION
 // ============================================
 
 void calculateRMS() {
@@ -346,15 +411,24 @@ void calculateRMS() {
 
   updateCalibration();
 
-  // Relative activation. Deliberately NOT clamped:
-  // a value above 100% means the MVC reference is low.
-  float activation = 0.0;
+  bool calibrating = (calStage != CAL_IDLE);
 
-  if (mvc_mV > 0.01) {
-    activation = (rms_mV / mvc_mV) * 100.0;
+  // Activation with the rest baseline removed in quadrature:
+  //   signal = sqrt(rms^2 - rest^2)
+  //   range  = sqrt(mvc^2 - rest^2)
+  float signal = rms_mV * rms_mV - rest_mV * rest_mV;
+  if (signal < 0.0f) signal = 0.0f;
+  signal = sqrt(signal);
+
+  float range = mvc_mV * mvc_mV - rest_mV * rest_mV;
+
+  float activation = 0.0f;
+
+  if (range > 1e-6f) {
+    activation = (signal / sqrt(range)) * 100.0f;
+    if (activation < 0.0f) activation = 0.0f;
   }
 
-  // Front-end sitting on a rail?
   bool clipped = (mean_mV > 3100.0 || mean_mV < 60.0);
 
   // ---- serial ----
@@ -371,18 +445,22 @@ void calculateRMS() {
   Serial.print("%");
   if (charging) Serial.print(" CHG");
 
-  if (calibrating) Serial.print(" | CALIBRATING");
+  if (calibrating) {
+    if (calStage == CAL_REST) Serial.print(" | REST");
+    else if (calStage == CAL_MVC) Serial.print(" | MVC");
+    else Serial.print(" | VERIFY");
+  }
 
   Serial.println();
 
   // ---- BLE ----
-  // mean,rms,activation,calibrating,batt_mV,batt_pct,charging,flags
-  char line[64];
+  // mean,rms,activation,calibrating,batt_mV,batt_pct,charging,flags,rest_mV,mvc_mV
+  char line[80];
 
   snprintf(
       line,
       sizeof(line),
-      "%.0f,%.2f,%.1f,%d,%.0f,%d,%d,%d\n",
+      "%.0f,%.2f,%.1f,%d,%.0f,%d,%d,%d,%.2f,%.2f\n",
       mean_mV,
       rms_mV,
       activation,
@@ -390,19 +468,12 @@ void calculateRMS() {
       (batt_pct >= 0) ? batt_mV_smooth : 0.0f,
       batt_pct,
       charging ? 1 : 0,
-      clipped ? 1 : 0
+      clipped ? 1 : 0,
+      rest_mV,
+      mvc_mV
   );
 
   notifyLine(line);
-
-  // ---- sample-rate health ----
-  windowsThisSecond++;
-
-  if (millis() - lastRateMark >= 1000) {
-    windowsLastSecond = windowsThisSecond;
-    windowsThisSecond = 0;
-    lastRateMark = millis();
-  }
 }
 
 // ============================================
@@ -442,8 +513,8 @@ void setup() {
   Serial.println("Battery ADC: GPIO1 (divider x2)");
 
   Serial.println("--------------------------------");
-  Serial.println("Send C for MVC calibration.");
-  Serial.println("Send R to reset calibration.");
+  Serial.println("C -> press 1: rest, 2: MVC, 3: verify");
+  Serial.println("R -> reset calibration");
   Serial.println("--------------------------------");
 
   startBle();
@@ -470,7 +541,7 @@ void loop() {
     char command = Serial.read();
 
     if (command == 'C' || command == 'c') {
-      startCalibration();
+      advanceCalibration();
     } else if (command == 'R' || command == 'r') {
       resetCalibration();
     }

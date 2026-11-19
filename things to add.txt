@@ -1,0 +1,795 @@
+# **MyoSense — Strict DH803 Project Evaluation**
+
+I'm going to evaluate this as if I were a professor deciding whether a four-person team deserves a high grade in a project worth **35% of the course**.
+
+First, one important distinction:
+
+**Having a working prototype is not the same as having a well-engineered wearable health technology.**
+
+Your BLE connection and functioning prototype establish that you have achieved a proof of concept. But the professor will want evidence that you have understood, designed, integrated, and tested the complete system.
+
+I would judge MyoSense on five things:
+
+1. Does it solve a clearly defined healthcare or physiological monitoring problem?
+2. Is the sensing and signal-processing methodology technically justified?
+3. Is the hardware genuinely wearable, comfortable and reliable?
+4. Is there measurable experimental validation?
+5. Can four team members demonstrate substantial, identifiable engineering contributions?
+
+The fifth point is important: **four people should mean four substantial engineering contributions, not four people splitting presentation slides.**
+
+Your battery-percentage idea is worth implementing. In fact, battery management is explicitly identified as a separate building block in the DH803 lecture framework (Classes 2–5 and Class 14). But simply displaying a battery icon is not enough to demonstrate meaningful power-management engineering.
+
+## **1. My honest assessment of the current presentation**
+
+
+
+Strong technical structure
+
+Weak experimental evidence
+
+
+
+I retrieved and examined your actual 22-slide presentation, including the speaker notes. This is considerably more informative than judging the slide titles alone.
+
+My assessment:
+
+| Area                              | Assessment |
+| --------------------------------- | ---------- |
+| Problem definition                | 8/10       |
+| Scientific background             | 8/10       |
+| Hardware architecture             | 7.5/10     |
+| Firmware and signal processing    | 8/10       |
+| Application and BLE integration   | 8/10       |
+| Experimental validation           | 3/10       |
+| Wearable engineering              | 4/10       |
+| Research depth                    | 7/10       |
+| Four-person contribution evidence | 5/10       |
+
+These are my qualitative scores, not official course marks.
+
+### **What I genuinely like**
+
+**A. Your scientific positioning is unusually responsible.**
+
+Slides 5–7 explain:
+
+- What surface EMG measures.
+- Motor-unit electrical activity.
+- RMS-based amplitude extraction.
+- MVC normalisation.
+- Why EMG amplitude is not equivalent to muscle force.
+
+This is important. You aren't making the scientifically indefensible claim that 70% MVC means 70% muscle force.
+
+**B. The engineering architecture is reasonably complete.**
+
+Your architecture on slide 7 covers:
+
+**Surface electrodes**
+
+Muscle electrical potential
+
+**Muscle BioAmp**
+
+Analog amplification and band limitation
+
+**ESP32-S3**
+
+2 kHz acquisition · 100 ms RMS · MVC
+
+**Bluetooth LE**
+
+10 Hz feature transmission
+
+**Browser application**
+
+Activation · target zone · reps · CSV
+
+This demonstrates an end-to-end wearable technology concept rather than just a sensor connected to a microcontroller.
+
+**C. You have acknowledged the weaknesses.**
+
+Slides 17–19 explicitly distinguish implemented, bench-run and proposed features. That's good engineering practice.
+
+I particularly like that you've identified:
+
+- MVC repeatability problems.
+- Motion artefacts.
+- Electrode placement sensitivity.
+- Crosstalk.
+- Sensor bandwidth limitations.
+- Lack of experimental validation.
+
+However, identifying limitations is not the same as resolving them.
+
+### **What I would criticise severely**
+
+Major weaknesses
+
+**1. You have more architecture than evidence.**
+
+Your slide 17 effectively admits that there are no recorded signal plots, no measured accuracy, no measured latency and no human-subject results.
+
+That's a serious problem.
+
+You have 22 slides describing a sophisticated system, but the professor still needs to see that the system actually works under real operating conditions.
+
+A simulated dashboard is not a demonstration of sensor performance.
+
+**2. Your wearable is not yet a finished wearable.**
+
+Slide 8 describes the components. Slide 10 describes the power chain. But where is the actual finished, wearable assembly?
+
+A collection of development boards, wires, a battery and electrodes is a prototype. It is not necessarily a wearable product.
+
+**3. Your team contribution is not adequately established.**
+
+Your title slide still has:
+
+- Jeet Gurbani
+- Shreeram Jadhav
+- Team member 3 · roll no.
+- Team member 4 · roll no.
+
+This is unacceptable in the final submission.
+
+More importantly, your presentation currently assigns speakers, but it does not clearly establish which substantial engineering deliverables each person independently owned.
+
+A professor could reasonably ask: *What exactly did each of the four students build?*
+
+You need an answer supported by evidence.
+
+## **2. Battery percentage: Definitely implement it**
+
+This is one of the best additions you can make without expanding the project's scope excessively.
+
+Your presentation already contains an optional 100k/100k voltage divider and battery telemetry in the firmware architecture.
+
+The problem is that the divider is explicitly marked as not fitted in the running build (slides 9, 14, 15 and 17).
+
+So this is not a completely new feature. It is an unfinished feature.
+
+### **What I recommend**
+
+[Solar Powered WiFi Weather Station V3.0 - Redeem Hardware Products, DIY Electronics, and Kits by PCBWay Beans - PCBWay](https://images.openai.com/static-rsc-4/buCY4UPY5n8hOdIgS8b__pMsy_CPROlYRzt7rnyfkyR0kTzi4zIvYoBjEOYiEb9HMxFiU1CrZ57sqmBW5cyzsVh4LXap-q6vIKauSiSM2hhWs_ksV26tZQQ_WraBrM1_rrRpkDJWv3Cowy5x-NZiPptQmaTsXiYKnMFOFPztiaA?purpose=inline)
+
+[pcbway.com](https://www.pcbway.com/project/gifts_detail/Solar_Powered_WiFi_Weather_Station_V3_0.html?utm_source=chatgpt.com)
+
+Your intended implementation:
+
+1. Battery positive connects through a voltage divider.
+2. Divider midpoint connects to ESP32 ADC GPIO1.
+3. Battery negative and ESP32 ground share a common reference.
+4. Firmware reads the voltage and calculates the estimated battery level.
+5. Battery voltage and percentage are transmitted over BLE.
+6. Browser displays the battery status.
+
+For your existing 100k + 100k divider:
+
+\\[ V\_{ADC}=V\_{BAT}\frac{100}{100+100} \\]
+
+Therefore:
+
+\\[ V\_{BAT}=2V\_{ADC} \\]
+
+At a fully charged 4.2 V battery, the ADC should see approximately 2.1 V.
+
+### **What the application should display**
+
+**MyoSense device status**
+
+Connected
+
+# **72%**
+
+Illustrative UI
+
+Battery voltage
+
+**3.98 V**
+
+Charging
+
+**No**
+
+Battery chemistry
+
+**1S Li-ion**
+
+Power mode
+
+**Battery**
+
+*Illustrative interface, not a measurement from your hardware.*
+
+### **Don't make this mistake**
+
+A lithium-ion battery's voltage does not decrease linearly with its state of charge.
+
+Don't simply assume that 3.7 V means 50% and 4.2 V means 100%.
+
+Use a chemistry-appropriate voltage-to-state-of-charge lookup curve, preferably with calibration against your actual battery.
+
+Also:
+
+- Measure ADC voltage against a multimeter.
+- Average several ADC readings.
+- Measure battery voltage under operating load.
+- Account for voltage-divider tolerance.
+- Implement low-battery warnings.
+- Test whether the ESP32 ADC readings remain stable while BLE is active.
+
+**My recommendation:** Complete battery telemetry, but don't advertise it as accurate fuel gauging. Call it estimated state of charge.
+
+And remember: the battery divider alone does not establish safe battery charging or protection. Verify the actual charger/protection circuit and enclosure before wearing it.
+
+## **3. What I would add to the actual project**
+
+Here is where I would spend the remaining engineering effort.
+
+I would not waste your time adding ten unnecessary features. I would concentrate on features that demonstrate engineering depth.
+
+### **Priority 1 — Make it genuinely wearable**
+
+
+
+Must do
+
+&#x20;Estimated effort: 4–6 hours
+
+
+
+[uMyo - wearable EMG sensor with wet/dry electrodes | Hackaday.io](https://images.openai.com/static-rsc-4/zGOR-wJ7WwhL5tVCygELpSmKS015x_upWlgduXj37oH7CpUUjFKrcDxTjBm3UIkSBZh7wirGogUhQmodxzYvhvu2hKc6GHbXWnuWhaRk7aikmCStQ8Gu3i0SXTEn6cFdVnUBnRvOEztnXz8eT9qc_N5X6hIHgK9zlaZIepNy5K4?purpose=inline)
+
+[Myoware 2.0 No Output - Biometrics - SparkFun Community](https://images.openai.com/static-rsc-4/sSOW6gIkO7x7rRLEQjjz1wLoc_9Lvav-quPMuotIZrqsHsb7Bx_pHJ5yLjsfcfwBrVS1X4tk1aQ8ksDipSPVpALuHWVzXtmiUIr8ZHXJgrrmApSeQbPURTHGruPauhMhjz0SJo3hhM8n2FdxbZR2n6TujaQoNfmHfjI9-3PLlMY?purpose=inline)
+
+[Seeed Studio XIAO Reference Designs in Wearables - Latest News from Seeed Studio](https://images.openai.com/static-rsc-4/vOKWurZ1dnuLGIEKSWgyxNIaR_uMfxhAISZbNd7OCScSogOkyc4Paej2Ov5tDuq1LPPP5ISl2kGN86KhgdSTU6l2oYVpC8FLpUcBXvdX00vUbhVQoTlwTz0js8tDEQ8XL8qR64VWnSErvzq_xclGfGAD7xT6bcUKTyoMK_ndY0w?purpose=inline)
+
+11
+
+I would expect the following:
+
+- ESP32 and EMG board mounted securely.
+- Battery housed separately from exposed electronics.
+- No exposed solder joints or loose wires.
+- Proper insulation and strain relief.
+- Comfortable adjustable strap.
+- Electrodes positioned consistently over the muscle.
+- Easy access to charging and power switch.
+- Minimal movement of the sensor during contractions.
+
+You don't necessarily need a custom PCB or professionally manufactured enclosure.
+
+A properly designed 3D-printed enclosure, Velcro strap and organised wiring would already be a substantial improvement.
+
+**What to demonstrate:** Wear it, move your arm, perform contractions, and show that the signal remains usable.
+
+Do not claim motion robustness unless you've tested it.
+
+### **Priority 2 — Experimental validation**
+
+
+
+Highest academic priority
+
+&#x20;Estimated effort: 5–7 hours
+
+
+
+This is where I think you can gain the most academic credibility.
+
+Currently, your presentation describes a measurement system without presenting sufficient measurement results.
+
+I want to see actual data.
+
+Run these experiments:
+
+| Experiment         | What to measure              | Minimum target       |
+| ------------------ | ---------------------------- | -------------------- |
+| Resting baseline   | RMS at rest                  | 30 seconds           |
+| Muscle contraction | RMS response                 | 3 contraction trials |
+| MVC repeatability  | MVC across trials            | 3–5 trials           |
+| Sampling           | Actual sampling frequency    | 2 kHz target         |
+| BLE performance    | Update interval and dropouts | 2–5 minutes          |
+| Battery            | Runtime and voltage decline  | One discharge test   |
+
+These are proposed test durations, not established standards.
+
+**A. Rest versus contraction**
+
+Record actual EMG measurements.
+
+[An Unofficial Introductory Tutorial to MyoWare Muscle Sensor Development Kit | by Walter Lee | Medium](https://images.openai.com/static-rsc-4/S0_UVDRKzC-ei2lHh0PrS0m2Nv0UahHrAWHwaQUEHk0tscEYa4BFYQHnEWNPXs8RQi2qQT1bQAo5TIrjua639I6rWD_910y1Lw9WgNlyAHR7vxrZ_ztoHOOTiCZfTUVR66IlYBVPHQ8G061V3vY2V1cACArvL6gVTePsyeGWozE?purpose=inline)
+
+[medium.com](https://medium.com/%40leex5202/an-unofficial-introductory-tutorial-to-myoware-muscle-sensor-development-kit-e2169948e63?utm_source=chatgpt.com)
+
+Show:
+
+- Resting signal.
+- Low-intensity contraction.
+- Medium-intensity contraction.
+- Maximum contraction.
+
+Plot RMS against time.
+
+**B. MVC repeatability**
+
+This is particularly important because your current firmware uses the maximum 100 ms RMS window from one five-second calibration.
+
+That's vulnerable to one noisy spike.
+
+Perform three to five MVC trials.
+
+Calculate:
+
+\\[ CV(\\%)=\frac{\text{Standard Deviation}}{\text{Mean}}\times100 \\]
+
+Show whether the reference contraction is repeatable.
+
+You can also compare the current maximum-window method against the average of the best few windows.
+
+Don't silently change the algorithm without explaining the difference.
+
+**C. BLE reliability**
+
+Record:
+
+- Expected update frequency: 10 Hz.
+- Actual received update frequency.
+- Missing packets or missed updates.
+- Reconnection behaviour.
+- End-to-end latency.
+
+A simple CSV log and a graph would be excellent evidence.
+
+**D. Rep counting validation**
+
+Perform 20 manually counted repetitions.
+
+Compare your app's rep counter against the manual count.
+
+\\[ Error(\\%)= \frac{|N\_{app}-N\_{manual}|}{N\_{manual}}\times100 \\]
+
+Repeat at different contraction intensities.
+
+This will help you establish whether your feedback logic is useful.
+
+### **Priority 3 — Signal-quality monitoring**
+
+
+
+High value
+
+&#x20;Estimated effort: 2–3 hours
+
+
+
+You already have a clipping flag in your firmware.
+
+Build on it.
+
+Add a signal-quality indicator to the browser application.
+
+For example:
+
+**Signal quality**
+
+**Good**
+
+Signal usable
+
+Clipping detected
+
+**0.2%**
+
+Baseline RMS
+
+**0.08 mV**
+
+Electrode contact
+
+**Not independently verified**
+
+The values above are illustrative.
+
+Possible indicators:
+
+- ADC clipping.
+- Excessive baseline noise.
+- Disconnected sensor.
+- Missing BLE data.
+- Abnormal signal amplitude.
+
+Be careful: you cannot reliably claim electrode contact detection unless you actually implement and validate a method for detecting it.
+
+This addition makes the system more than a pretty percentage meter.
+
+### **Priority 4 — Improve MVC calibration**
+
+
+
+High value
+
+&#x20;Estimated effort: 2–3 hours
+
+
+
+Your current implementation has a clear weakness.
+
+Slide 13 itself acknowledges that one noisy window can inflate MVC.
+
+Improve it:
+
+1. Rest for a fixed period.
+2. Perform a five-second maximum contraction.
+3. Rest.
+4. Repeat three times.
+5. Calculate a robust MVC reference from the trials.
+6. Display calibration quality.
+
+Also show the user whether calibration was successful.
+
+This is much more defensible scientifically than simply storing one maximum reading.
+
+### **Priority 5 — Battery management and runtime**
+
+
+
+Recommended
+
+&#x20;Estimated effort: 2–3 hours
+
+
+
+Beyond percentage:
+
+- Battery voltage.
+- Estimated percentage.
+- Low-battery warning.
+- Charging indication, if properly sensed.
+- Actual operating runtime.
+- Average current consumption.
+
+Measure current consumption with a multimeter or suitable power meter.
+
+You can estimate runtime:
+
+\\[ T\_{ideal}=\frac{Capacity(mAh)}{Current(mA)} \\]
+
+But report measured runtime separately because conversion losses, battery characteristics and operating conditions matter.
+
+### **Priority 6 — Second channel**
+
+Optional, only after priorities 1–5
+
+Your original concept proposes simultaneous measurement of a target and helper muscle.
+
+That would be a meaningful research and engineering improvement.
+
+However, I would not prioritise it over validation.
+
+A second sensor without reliable first-channel measurements simply doubles your debugging workload.
+
+If you have sufficient time:
+
+- Add a second EMG front end.
+- Use an independent electrode reference.
+- Acquire both channels on a shared timing schedule.
+- Maintain independent MVC calibration.
+- Display both activation percentages simultaneously.
+
+Then you can demonstrate actual simultaneous muscle measurements rather than sequential measurements.
+
+If time is short, retain the single-channel architecture and present two-channel acquisition as future scope.
+
+## **4. What four people should actually contribute**
+
+This is where I would be quite strict.
+
+I would not expect four people to produce four unrelated features. I would expect four owners of substantial, integrated engineering subsystems.
+
+Here's how I would divide the remaining work.
+
+**Member 1 — Hardware and wearable engineering**
+
+Owner 1
+
+- Wearable enclosure and strap.
+- Electrode placement and mounting.
+- Battery and power-chain verification.
+- Voltage-divider integration.
+- Electrical safety checks.
+
+  Deliverables: finished wearable, wiring diagram, enclosure design, power measurements.
+
+  **Member 2 — Firmware and embedded systems**
+
+  Owner 2
+- ADC sampling verification.
+- RMS and MVC improvements.
+- BLE packet reliability.
+- Battery telemetry.
+- Signal-quality flags.
+
+  Deliverables: firmware, acquisition logs, measured sampling rate, BLE test results.
+
+  **Member 3 — Signal processing and experimental validation**
+
+  Owner 3
+- Experimental protocol.
+- EMG signal analysis.
+- MVC repeatability.
+- Rest/contraction comparisons.
+- Rep-count validation.
+
+  Deliverables: raw data, Python analysis, plots, statistical results, limitations.
+
+  **Member 4 — Application and system integration**
+
+  Owner 4
+- Browser application.
+- Battery and signal-quality UI.
+- BLE connection/reconnection.
+- CSV export and session summaries.
+- Integration and final demonstration.
+
+  Deliverables: application, interface, integration tests, demonstration recording.
+
+These are ownership areas, not isolated silos. Every person should participate in integration and understand the entire system.
+
+### **What should each member be able to defend?**
+
+| Member            | Professor should be able to ask                                                  |
+| ----------------- | -------------------------------------------------------------------------------- |
+| Hardware          | Why this power architecture? How did you ensure safe operation?                  |
+| Firmware          | How do you guarantee 2 kHz sampling while BLE is active?                         |
+| Signal processing | Why RMS? Why MVC? What affects repeatability?                                    |
+| Application       | How are BLE packets parsed? How are reps counted? What happens on disconnection? |
+
+If a member cannot answer questions outside their own section, the team hasn't integrated its understanding sufficiently.
+
+## **5. What to change in the presentation**
+
+Your existing presentation has a good structure. I would not throw it away and start again.
+
+I would add approximately six slides and modify some existing ones.
+
+| Slide | Addition or modification                                 | Priority  |
+| ----- | -------------------------------------------------------- | --------- |
+| 1     | Complete all four team identities                        | Mandatory |
+| 8–10  | Actual photographs of assembled hardware and wearable    | Mandatory |
+| 11–13 | Include real signal acquisition and calibration evidence | Mandatory |
+| 15    | Show actual browser interface with real hardware data    | Mandatory |
+| 17    | Replace proposed-only evaluation with measured results   | Mandatory |
+| 18    | Add evidence-backed discussion of limitations            | High      |
+| 19    | Separate completed work from future scope                | High      |
+| New   | Battery management and measured runtime                  | High      |
+| New   | Experimental protocol and methodology                    | Very high |
+| New   | Quantitative results and analysis                        | Very high |
+| New   | Four-member contribution matrix                          | High      |
+| New   | Cost breakdown and comparison with alternatives          | Medium    |
+
+### **Three slides I particularly want you to add**
+
+**Slide A — Experimental setup**
+
+Show:
+
+- Actual wearable.
+- Electrode placement.
+- Muscle being tested.
+- Hardware arrangement.
+- Data acquisition setup.
+
+**Slide B — Results**
+
+Show three or four real plots:
+
+1. Raw EMG signal.
+2. RMS during rest and contraction.
+3. MVC across repeated trials.
+4. BLE received activation over time.
+
+Include axes, units, sample size and experimental conditions.
+
+**Slide C — Engineering performance**
+
+Show a table like this:
+
+| Parameter           | Target         | Measured   |
+| ------------------- | -------------- | ---------- |
+| Sampling frequency  | 2 kHz          | To measure |
+| Feature update rate | 10 Hz          | To measure |
+| BLE latency         | Defined target | To measure |
+| MVC repeatability   | Defined target | To measure |
+| Runtime             | Defined target | To measure |
+| Rep-count error     | Defined target | To measure |
+
+Don't fill this with invented numbers. An honestly reported failure is better than fabricated performance.
+
+## **6. Important technical issues a professor could catch**
+
+I would prepare answers to these before your presentation.
+
+| Potential question                  | What you need to establish                               |
+| ----------------------------------- | -------------------------------------------------------- |
+| Why 2 kHz?                          | Nyquist requirement relative to your front-end bandwidth |
+| Why 100 ms RMS?                     | Responsiveness versus signal stability                   |
+| Why 72–720 Hz?                      | Actual sensor bandwidth and its implications             |
+| Why MVC normalisation?              | Within-person reference, not force measurement           |
+| Why BLE instead of Wi-Fi?           | Power, bandwidth and connectivity trade-offs             |
+| Why one channel?                    | Cost and complexity versus simultaneous measurement      |
+| How do you handle motion artefacts? | Current limitations and tested mitigation                |
+| How reliable is MVC?                | Repeatability across trials                              |
+| How long does the battery last?     | Measured runtime                                         |
+| What happens if BLE disconnects?    | Reconnection and data-integrity behaviour                |
+
+One particularly important issue: your front end is described as having a fixed 72–720 Hz bandwidth, whereas conventional sEMG analysis often uses approximately 20–450 Hz.
+
+You need to explain the consequences. You cannot simply claim conventional EMG spectral analysis or fatigue detection with your current hardware.
+
+Also, your 2 kHz sampling frequency is theoretically reasonable for a 720 Hz upper cutoff, but that does not prove that your actual acquisition achieves 2 kHz consistently.
+
+## **7. How much should you realistically do?**
+
+Assuming you have roughly 1–2 days remaining, this is how I would allocate the time.
+
+**Execution priority**
+
+**Day 1 — Engineering**
+
+Essential
+
+1. Finish wearable mounting, enclosure and wiring.
+2. Integrate and test battery voltage measurement.
+3. Run real EMG acquisition experiments.
+4. Test BLE and record actual data.
+5. Run repeated MVC and rep-count experiments.
+
+**Day 2 — Evidence and presentation**
+
+Essential
+
+1. Analyse experimental data and generate plots.
+2. Complete browser UI improvements.
+3. Photograph the final wearable and experimental setup.
+4. Update results, limitations and contributions slides.
+5. Perform a complete live demonstration rehearsal.
+
+**Only if everything above works**
+
+- Second-channel implementation.
+- More sophisticated filtering.
+- IMU integration.
+- Machine-learning-based fatigue estimation.
+
+My advice: do not attempt ML fatigue prediction at this stage. It would be a scientifically weak addition without a proper dataset and validated protocol.
+
+## **8. Realistic grading assessment**
+
+I cannot know your professor's exact marking rubric or grading standards, so these are my subjective estimates.
+
+**My current assessment**
+
+# **55–65 / 100**
+
+Estimated project quality if the documented evidence reflects the actual demonstration.
+
+**Potential after completing the priorities**
+
+# **75–85 / 100**
+
+A realistic target, not a predicted or guaranteed grade.
+
+Why am I not giving you 85 already?
+
+Because right now:
+
+- You have a working concept and architecture.
+- You have substantial software and firmware implementation.
+- You have a BLE-connected prototype.
+- But you lack quantitative validation.
+- The wearable integration is unfinished.
+- Battery management isn't fully demonstrated.
+- Your experimental evidence is insufficient.
+
+For a project worth 35% of the course, I would expect substantially more than a functioning prototype and a polished presentation.
+
+A project that works once during a demonstration is not necessarily a reliable engineering system.
+
+## **9. One thing I need to clarify about your GitHub code**
+
+I successfully extracted the complete presentation and its speaker notes, including the technical details of the firmware, battery architecture, BLE protocol and application.
+
+However, I could not retrieve the contents of your exact GitHub repository through the available connection. Therefore, I have assessed the code architecture documented in your presentation, not independently audited the source files.
+
+Repository: [MyoSense on GitHub](https://github.com/Jeet1309/MyoSense?utm_source=chatgpt.com).
+
+If you upload the repository as a ZIP, I can inspect:
+
+- Actual ESP32 firmware.
+- ADC acquisition and sampling timing.
+- RMS implementation.
+- MVC calibration algorithm.
+- BLE characteristics and packet parsing.
+- Battery measurement implementation.
+- Browser application and rep-counting logic.
+- Bugs, unnecessary code and improvements.
+
+I can then give you specific code-level changes instead of hypothetical recommendations.
+
+## **10. My final verdict**
+
+If I were supervising this project, I would tell your team:
+
+**Stop adding features just to make the project look bigger. Start proving that what you have built actually works.**
+
+Your existing work is not trivial. The end-to-end architecture, embedded processing, wireless communication and browser integration are legitimate engineering contributions.
+
+But the biggest gap between an average project and an excellent project is often experimental evidence.
+
+My final priorities would be:
+
+1.
+
+   Non-negotiable
+
+   &#x20;Finish the wearable.
+
+
+2.
+
+   Non-negotiable
+
+   &#x20;Record actual EMG signals and generate plots.
+
+
+3.
+
+   Non-negotiable
+
+   &#x20;Validate MVC repeatability and sampling.
+
+
+4.
+
+   Strong addition
+
+   &#x20;Finish battery telemetry and measure runtime.
+
+
+5.
+
+   Strong addition
+
+   &#x20;Add signal-quality monitoring.
+
+
+6.
+
+   Strong addition
+
+   &#x20;Validate rep counting.
+
+
+7.
+
+   Optional
+
+   &#x20;Second channel.
+
+
+8.
+
+   Optional
+
+   &#x20;Advanced features and ML.
+
+
+
+**I would much rather see five features that are properly implemented, tested and defended than fifteen features that exist only in your slides.**
+
+And one final point: don't try to make the work *look* like four people did it. Make sure four people can independently explain and defend the engineering they actually contributed. That is what will survive a professor's questions.
+
+My recommendation is to upload the GitHub ZIP next. I want to audit the actual code against the claims on slides 9–19, particularly the sampling, battery and MVC implementations.

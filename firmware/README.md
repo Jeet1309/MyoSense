@@ -63,20 +63,45 @@ python tools/emg_plot.py --replay logs/bench.csv --save-png logs/bench.png
 
 `emg_capture.py` prints baseline, peak, drift and clipping at the end.
 
-## 5. Muscle test
+## 5. Muscle test and the three-press calibration
 
 **Battery power only** — see the safety note in `../PROTOTYPE_BENCH_TEST_HANDOFF.md`.
 
-1. Apply electrodes: `IN+`/`IN−` over the muscle belly, `REF` on bone.
-2. Rest, then press `C` and hold a maximal contraction for 5 s. Repeat 3 times, resting 1–2 min.
-3. Record the task condition.
-4. `Activation %` is the task RMS divided by the calibrated MVC RMS.
+Apply electrodes first: `IN+`/`IN−` over the muscle belly, `REF` on bone. Then press `C`
+three times, once per step. Each step lasts 5 s and the prompt is printed on the serial line.
 
-Caveats worth knowing:
+| Press | Prompt | What you do | What it records |
+|---|---|---|---|
+| 1 | `STEP 1/3 - REST BASELINE` | stay completely relaxed | **average** RMS over the 5 s → noise floor |
+| 2 | `STEP 2/3 - MVC` | contract maximally, hold all 5 s | **peak** 100 ms RMS → MVC |
+| 3 | `STEP 3/3 - MVC VERIFY` | contract maximally again | peak of the second trial; the higher one is kept |
 
-- The MVC is the **peak sample** in the 5 s window, so one noise spike inflates it. Average 3 consistent trials.
-- `Activation` is clamped to 100 %, which hides readings above the reference. If you see exactly 100.0%, suspect a weak MVC rather than a perfect contraction.
-- `RMS` here is the standard deviation of the window (AC amplitude), not an absolute voltage.
+After step 3 the line prints `VERIFY RMS: … -> kept: …` and the `MVC/rest` ratio.
+
+`Activation %` is computed with the noise floor removed:
+
+```
+signal = sqrt(rms² - rest²)
+range  = sqrt(mvc² - rest²)
+activation = 100 × signal / range
+```
+
+That subtraction is why rest now reads near 0 % instead of 30–40 %. Without a baseline
+(press 2 and 3 only) the formula falls back to the plain `rms / mvc`.
+
+Worth knowing:
+
+- The MVC is the **peak window**, so a single noise spike inflates it. That is exactly why
+  step 3 exists — repeat the maximal trial and keep the better one.
+- `Activation` is **not clamped**, so a value above 100 % means the reference was taken on a
+  weaker contraction.
+- A healthy result has `MVC/rest` between roughly 8 and 20. Below 5 means poor contact or a
+  sub-maximal effort, and every percentage will read too high.
+- `RMS` is the standard deviation of the 100 ms window (AC amplitude), not an absolute voltage.
+- Calibrate with the **same task you will measure** — calibrate with the grip if you train
+  with the grip.
+- Re-run all three presses whenever the electrodes move.
+- `R` clears both values and returns the cycle to step 1.
 
 ## 6. Troubleshooting
 
@@ -102,7 +127,7 @@ Upload `team_ble/team_ble.ino` with the same IDE settings as above. The USB seri
 | TX (notify) | `6E400003-…` | board → phone/laptop, payload `mean,rms,activation,calibrating` |
 | RX (write) | `6E400002-…` | phone/laptop → board, send `C` to calibrate or `R` to reset |
 
-Payload example: `1665,54.47,0.0,0,3980,72,1,0` — mean mV, RMS mV, activation %, calibrating, battery mV, battery %, charging, flags (bit 0 = front end at a rail). One line every 100 ms. The line is longer than a default 20-byte BLE packet, so the firmware splits it and the client reassembles on the newline.
+Payload example: `1665,54.47,0.0,0,3980,72,1,0,0.31,12.40` — mean mV, RMS mV, activation %, calibrating, battery mV, battery %, charging, flags (bit 0 = front end at a rail), rest baseline mV, MVC mV. One line every 100 ms. The line is longer than a default 20-byte BLE packet, so the firmware splits it and the client reassembles on the newline.
 
 ### From a phone
 

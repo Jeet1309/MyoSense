@@ -11,7 +11,7 @@ A single-file web app that connects to the board over Bluetooth LE and turns the
 | Bar colour | Amber below the target zone, green inside it, red above |
 | Blue band | Your target zone (adjustable, default 60–80 %) |
 | RMS | Raw 100 ms RMS in mV, the underlying signal |
-| MVC reference | The mV value behind 100 %, derived from the calibration |
+| MVC reference | The mV value behind 100 %, plus the measured rest baseline |
 | Reps | Counted when activation rises past the high value and falls below the low one |
 | Time in zone | How long the last rep was held inside the band |
 | Battery pill | Pack voltage and percentage, with `CHG` while charging (needs the divider in `firmware/README.md` §8) |
@@ -20,10 +20,12 @@ A single-file web app that connects to the board over Bluetooth LE and turns the
 
 Buttons:
 
-- **Calibrate MVC** — sends `C`; the firmware records the peak 100 ms window for 5 s.
-  Contract as hard as you can for the whole window.
-- **Reset** — sends `R`, clears the reference; activation returns to 0 %.
-- **Save CSV** — exports the session for plotting or the report.
+- **Calibrate** — three presses, each 5 s, with the label telling you which step is next:
+  - **1/3 · rest** — stay completely relaxed; records the noise floor.
+  - **2/3 · MVC** — contract maximally for the whole 5 s; records the peak window.
+  - **3/3 · verify** — contract maximally again; the stronger trial is kept.
+- **Reset** — sends `R`, clears both values and returns to step 1; activation goes to 0 %.
+- **Save CSV** — exports every row plus a session summary block.
 
 ## Running it
 
