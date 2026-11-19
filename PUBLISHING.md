@@ -33,6 +33,8 @@ This file records what is published, what is deliberately kept local, and why. T
 | `tools/emg_capture.py` | 8 KB | Logs the serial stream to CSV with a statistics summary |
 | `tools/emg_plot.py` | 10 KB | Plots a captured log |
 | `tools/emg_ble.py` | 8 KB | Logs the BLE stream to CSV with a statistics summary |
+| `tools/plot_session.py` | 9 KB | Plots a session (activation with target band, RMS, battery) and prints its statistics |
+| `tools/test_meter_logic.py` | 6 KB | Headless checks for the browser page logic |
 | `app/meter.html` | 16 KB | Browser app: live activation meter, target zone, rep counter, CSV export |
 | `app/README.md` | 3 KB | How to run the app and why Web Bluetooth needs HTTPS/localhost |
 | `my deep-research-report.md` | 11 KB | Original draft, kept for provenance (its errors are corrected in `RECONCILIATION_AND_ADDITIONS.md`) |

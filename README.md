@@ -22,7 +22,7 @@ project/
 ├─ PROTOTYPE_BENCH_TEST_HANDOFF.md ← next-session hardware identification, safe power and one-channel test procedure
 ├─ HARDWARE_BATTERY.md            ← optional battery-level and charging wiring (resistor divider, GPIO1)
 ├─ firmware/                      ← team_mvc.ino (USB serial) and team_ble.ino (Bluetooth LE) + firmware/README.md (step-by-step)
-├─ tools/                         ← emg_capture.py (log + stats), emg_plot.py (replay/plot) and emg_ble.py (BLE log)
+├─ tools/                         ← emg_capture.py (serial log), emg_ble.py (BLE log), emg_plot.py (replay) and plot_session.py (session plots + stats)
 ├─ app/                           ← meter.html: browser app that turns the BLE stream into a live activation meter
 ├─ MUSCLE_ACTIVATION_AND_EXERCISE_SELECTION.md ← deep-dive on M9/M10: how the body makes EMG, how it varies by exercise, and the 2-muscle %MVC ratio
 ├─ share/                         ← share pack: from-scratch guide (Markdown + PDF), citation map and curated local references

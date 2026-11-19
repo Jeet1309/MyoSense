@@ -48,6 +48,25 @@ then open <http://localhost:8000/app/meter.html> in Chrome or Edge.
 repository (Settings → Pages → Deploy from branch → `main` → `/` root). The page is then
 at `https://<user>.github.io/MyoSense/app/meter.html`.
 
+## Plotting a session
+
+1. In the app, click **Save CSV** — you get `myosense-<timestamp>.csv`.
+2. Turn it into a figure and a statistics block:
+
+```
+python tools/plot_session.py myosense-2026-11-19T10-22-31.csv --save-png session.png
+python tools/plot_session.py myosense-….csv --lo 60 --hi 80 --show
+```
+
+The figure has three panels — activation against your target band with rep markers, the RMS
+envelope with the rest baseline, and battery voltage — and the console prints duration, peak
+and p95 activation, time in band, reps, noise floor, MVC, the MVC/rest ratio and the battery
+span. It also accepts the `emg_capture.py` serial CSV.
+
+Note what is **not** there: the BLE stream carries 10 Hz features (mean, RMS, activation),
+not the 2 kHz waveform, so no raw-sample plot can come out of it. A raw view needs the
+serial path or a dedicated dump mode.
+
 ## Testing
 
 The page logic can be checked without a board:
