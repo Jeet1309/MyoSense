@@ -43,6 +43,18 @@ then open <http://localhost:8000/app/meter.html> in Chrome or Edge.
 repository (Settings → Pages → Deploy from branch → `main` → `/` root). The page is then
 at `https://<user>.github.io/MyoSense/app/meter.html`.
 
+## Testing
+
+The page logic can be checked without a board:
+
+```
+python tools/test_meter_logic.py
+```
+
+It extracts this page's script, runs it under Node with a stubbed DOM, feeds synthetic BLE
+payloads and asserts the UI: calibration step tracking, rep counting, over-range display,
+battery pill visibility, rail warning and status text. 21 checks.
+
 ## Browser support
 
 | Browser | Works |

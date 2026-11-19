@@ -66,6 +66,9 @@ enum CalStage {
 
 CalStage calStage = CAL_IDLE;
 
+// Which step the NEXT press of C starts: 0 = rest, 1 = MVC, 2 = verify.
+uint8_t calStep = 0;
+
 float rest_mV = 0.0;        // measured noise floor
 float mvc_mV = 0.0;         // maximal voluntary contraction
 
@@ -184,6 +187,11 @@ void updateBattery() {
 // Press 1 -> rest, press 2 -> MVC, press 3 -> verify, then it cycles.
 void advanceCalibration() {
 
+  if (calStage != CAL_IDLE) {
+    Serial.println("Calibration in progress - wait for it to finish.");
+    return;
+  }
+
   calSum = 0.0;
   calCount = 0;
   calMax = 0.0;
@@ -191,14 +199,14 @@ void advanceCalibration() {
 
   Serial.println();
 
-  if (calStage == CAL_IDLE) {
+  if (calStep == 0) {
 
     calStage = CAL_REST;
 
     Serial.println("STEP 1/3 - REST BASELINE");
     Serial.println("Stay completely relaxed for 5 s.");
 
-  } else if (calStage == CAL_REST) {
+  } else if (calStep == 1) {
 
     calStage = CAL_MVC;
 
@@ -217,6 +225,7 @@ void advanceCalibration() {
 void resetCalibration() {
 
   calStage = CAL_IDLE;
+  calStep = 0;
 
   rest_mV = 0.0;
   mvc_mV = 0.0;
@@ -247,6 +256,7 @@ void updateCalibration() {
 
     rest_mV = (calCount > 0) ? (calSum / calCount) : 0.0;
     calStage = CAL_IDLE;
+    calStep = 1;
 
     Serial.println();
     Serial.print("REST BASELINE: ");
@@ -258,6 +268,7 @@ void updateCalibration() {
 
     mvc_mV = calMax;
     calStage = CAL_IDLE;
+    calStep = 2;
 
     Serial.println();
     Serial.print("MVC RMS: ");
@@ -272,6 +283,7 @@ void updateCalibration() {
     if (improved) mvc_mV = calMax;
 
     calStage = CAL_IDLE;
+    calStep = 0;
 
     Serial.println();
     Serial.print("VERIFY RMS: ");
@@ -431,6 +443,9 @@ void calculateRMS() {
 
   bool clipped = (mean_mV > 3100.0 || mean_mV < 60.0);
 
+  // flags: bit 0 = front end at a rail, bits 1-2 = next calibration step
+  uint8_t flags = (clipped ? 1 : 0) | ((calStep & 0x03) << 1);
+
   // ---- serial ----
   Serial.print("Mean: ");
   Serial.print(mean_mV, 2);
@@ -468,7 +483,7 @@ void calculateRMS() {
       (batt_pct >= 0) ? batt_mV_smooth : 0.0f,
       batt_pct,
       charging ? 1 : 0,
-      clipped ? 1 : 0,
+      flags,
       rest_mV,
       mvc_mV
   );

@@ -471,9 +471,15 @@ function handleNotification(event) {
     const battMv = p.length > 4 ? parseFloat(p[4]) : 0;
     const battPct = p.length > 5 ? parseFloat(p[5]) : 0;
     const chg = p.length > 6 && parseFloat(p[6]) === 1;
-    const clipped = p.length > 7 && parseFloat(p[7]) === 1;
+    const clipped = p.length > 7 && (parseFloat(p[7]) & 1) === 1;
+    const stepFromBoard = p.length > 7 ? (parseFloat(p[7]) >> 1) & 3 : 0;
     const restMv = p.length > 8 ? parseFloat(p[8]) : 0;
     const mvcMv = p.length > 9 ? parseFloat(p[9]) : 0;
+
+    if (isFinite(stepFromBoard) && stepFromBoard !== state.calStep && stepFromBoard < 3) {
+      state.calStep = stepFromBoard;
+      updateCalLabel();
+    }
 
     onSample(mean, rms, act, cal, battMv, battPct, chg, clipped, restMv, mvcMv);
   }
@@ -603,9 +609,8 @@ ui.btnCal.addEventListener("click", () => {
   setStatus("calibrating — 5.0 s", "busy");
   state.calStartedAt = performance.now();
   state.calibrating = true;
+  ui.calHint.textContent = CAL_HINTS[state.calStep % 3];
   sendCommand("C");
-  state.calStep = (state.calStep + 1) % 3;
-  ui.calHint.textContent = CAL_HINTS[(state.calStep + 2) % 3];
 });
 
 ui.btnReset.addEventListener("click", () => {
