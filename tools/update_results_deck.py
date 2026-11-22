@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Update the final MyoSense presentation with the 2026-11-22 pilot readings.
 
-    python tools/update_results_deck.py MyoSense_final_with_circuit_schematic.pptx MyoSense_final_results.pptx
+    python tools/update_results_deck.py MyoSense_final_web_photo_schematic.pptx MyoSense_final_results.pptx
 
 Requires python-pptx. The original deck is left untouched.
 """

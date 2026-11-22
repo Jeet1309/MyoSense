@@ -157,7 +157,9 @@ Notes:
 
 ## 8. Battery and charging telemetry
 
-The board cannot see its own battery until you give it a divider. Two resistors of the **same value** (100 kΩ is ideal; 47 kΩ or 10 kΩ work too).
+The battery divider is two equal **68 kΩ resistors** (the installed pair). Two equal 100 kΩ,
+47 kΩ or 10 kΩ resistors also work; if replacing the pair with unequal values, update
+`BATT_DIVIDER`.
 
 ```
 HW-373 OUT+ ──[ R1 ]──●──[ R2 ]── GND

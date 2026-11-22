@@ -15,6 +15,8 @@ This file records what is published, what is deliberately kept local, and why. T
 | `share/EMG_WEARABLE_FROM_SCRATCH.pdf` | 0.5 MB | Same content, rendered for reading and sharing |
 | `share/figures/system_architecture.png` | — | Signal chain diagram |
 | `share/figures/power_tree.png` | — | Power and charging diagram |
+| `figures/myosense_web_photo_circuit_schematic.png` | 0.6 MB | Photo-annotated acquisition, power and battery-divider schematic; this single figure is an explicit exception to the local-only `figures/` rule |
+| `tools/build_web_photo_circuit_schematic.py` | — | Rebuilds that schematic from manufacturer/product image URLs; photo credits are printed on the image |
 | `share/SHARE_REFERENCES.md` | 6 KB | Every citation with DOI, plus the local source map |
 | `share/README.md` | 2 KB | What the share pack is |
 | `CURRENT_DESIGN.md` | 11 KB | Live decision record: part status, open questions, interpretation rules |
@@ -43,7 +45,7 @@ This file records what is published, what is deliberately kept local, and why. T
 | `tools/plot_session.py` | 9 KB | Plots a session (activation with target band, RMS, battery) and prints its statistics |
 | `tools/test_meter_logic.py` | 6 KB | Headless checks for the browser page logic |
 | `tools/test_ble_and_results.py` | — | BLE payload and CSV plotting regression tests |
-| `tools/update_results_deck.py` | — | Rebuilds results slides from the circuit-schematic source deck |
+| `tools/update_results_deck.py` | — | Rebuilds results slides from the photo-schematic source deck |
 | `app/meter.html` | 16 KB | Browser app: live activation meter, target zone, rep counter, CSV export |
 | `app/README.md` | 3 KB | How to run the app and why Web Bluetooth needs HTTPS/localhost |
 | `my deep-research-report.md` | 11 KB | Original draft, kept for provenance (its errors are corrected in `RECONCILIATION_AND_ADDITIONS.md`) |
@@ -66,8 +68,8 @@ in the slides. Machine-specific G-code is also kept local.
 | Root `*.mp4` exercise clips | 74 MB | Raw workout footage; avoids publishing duplicate/unedited personal video | Selected demonstration clips are embedded in the final deck |
 | `*.gcode` | 1.9 MB | Printer/profile-specific generated output | Re-slice the STL for the target printer |
 | `Myosense_final.pptx` | 8.9 MB | Original input deck; superseded by `MyoSense_final_results.pptx` | Use the updated results deck |
-| `MyoSense_final_with_circuit_schematic.pptx` | 8.2 MB | User's intermediate source deck; its schematic is retained in the updated results deck | Use `MyoSense_final_results.pptx` |
-| `figures/` | 6.6 MB | Older figures plus team member photographs (personal data) | Not needed; the two new diagrams are in `share/figures/` |
+| `MyoSense_final_with_circuit_schematic.pptx` / `MyoSense_final_web_photo_schematic.pptx` | 8.2 / 8.6 MB | Intermediate source decks; the latest photo schematic and results are in `MyoSense_final_results.pptx` | Use the updated results deck |
+| `figures/` other than `myosense_web_photo_circuit_schematic.png` | 6.6 MB | Older figures plus team member photographs (personal data) | The new circuit schematic is the only published exception |
 | `MyoSense_A2_DH803.docx` / `.pptx` | 7 MB | Superseded graded submission, out of date technically | History is summarised in `CURRENT_DESIGN.md` |
 | `EMG Project Communications Subsystem Plan.pdf` | 75 KB | Superseded proposal (SEN0240 / generic ESP32 BOM) | Summarised in `REFERENCES_INDEX.md` |
 | `R1.pdf`, `R2.pdf`, `Wrist*`, `Team8_stage2_report.pdf`, `writs_readings_ss.pdf` | 5 MB | Belong to a separate wrist-ROM project | Unrelated |
@@ -95,6 +97,7 @@ Notes:
 
 - MIT is a permissive software licence; applying it to the prose documents is unusual but harmless and keeps the repository simple.
 - Third-party material is **not** covered and is not redistributed: cited papers belong to their authors and publishers, and their DOIs are listed in `SHARE_REFERENCES.md`.
+- The photo-annotated schematic and final slide deck contain product photographs credited on the schematic and selected demonstration clips; the project licence does not grant rights to reuse those embedded third-party assets.
 - If you later want the documents under CC BY 4.0 instead, add `LICENSE-docs` and state the split in `README.md`.
 - The `README.md` states that this is a student prototype, not a medical device. Keep that sentence if the text is edited.
 

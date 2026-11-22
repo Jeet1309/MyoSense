@@ -31,12 +31,13 @@ state is inferred.
 
 | Part | Value | Notes |
 |---|---|---|
-| R1, R2 | **equal**, 100 kΩ preferred (47 kΩ or 10 kΩ also fine) | 1 % metal film if you have them; anything works at this tolerance |
+| R1, R2 | **Two equal 68 kΩ resistors are the installed value**; 100 kΩ, 47 kΩ or 10 kΩ pairs also work | 1 % metal film preferred; the ratio matters more than exact tolerance |
 | Wire | 2 short pieces | solid core is easiest |
 | Optional R3 | 10 kΩ | only for the true-charging upgrade in §6 |
 
 Two equal resistors keep the maths trivial: the divider halves the voltage, so a fully
-charged 4.2 V cell presents 2.1 V to the ADC, well inside the 3.3 V limit.
+charged 4.2 V cell presents 2.1 V to the ADC, well inside the 3.3 V limit. With the current
+68 kΩ pair, divider current is about 31 µA; a 100 kΩ pair reduces it to about 21 µA.
 
 ---
 
@@ -48,8 +49,8 @@ charged 4.2 V cell presents 2.1 V to the ADC, well inside the 3.3 V limit.
   │  B+ ───┼── cell +                     (charger input side)
   │  B- ───┼── cell −
   │        │
-  │ OUT+ ──┼──┬──[ R1 100k ]──●────────── GPIO1
-  │ OUT- ──┼──┴── GND ────────┴──[ R2 100k ]── GND
+  │ OUT+ ──┼──┬──[ R1 68k ]───●────────── GPIO1
+  │ OUT- ──┼──┴── GND ────────┴──[ R2 68k ]─── GND
   └────────┘         │
                      └── ESP32 GND  (common ground, mandatory)
 ```
@@ -112,7 +113,8 @@ const float BATT_DIVIDER = 2.0f;   // (R1 + R2) / R2
 ```
 
 If your resistors are not equal, set `BATT_DIVIDER` to `(R1 + R2) / R2`. Example: 47 kΩ and
-100 kΩ → `(47 + 100) / 100 = 1.47`.
+100 kΩ → `(47 + 100) / 100 = 1.47`. The two equal 68 kΩ resistors currently fitted use the
+default value `2.0`.
 
 Below 2.6 V the firmware treats the reading as "no sensor fitted" and sends 0, so a floating
 pin never shows a false 0 %.
@@ -244,4 +246,3 @@ hours.
 On the HW-373 the charge LED typically lights while a charge is in progress and the second LED
 lights when the cycle terminates. With the load connected, treat "still charging" as normal
 and use the pack voltage as the real indicator: about 4.2 V means it is full.
-
