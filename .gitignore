@@ -24,6 +24,10 @@ me6114_project_imu.zip
 # ---------------------------------------------------------------
 /videos/
 /figures/
+*.mp4
+*.gcode
+Myosense_final.pptx
+MyoSense_final_with_circuit_schematic.pptx
 MyoSense_A2_DH803.docx
 MyoSense_A2_DH803.pptx
 EMG Project Communications Subsystem Plan.pdf

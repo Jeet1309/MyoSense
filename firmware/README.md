@@ -129,7 +129,7 @@ Upload `team_ble/team_ble.ino` with the same IDE settings as above. The USB seri
 
 Payload example: `1665,54.47,0.0,0,3980,72,1,0,0.31,12.40,1999` — mean mV, RMS mV, activation %, calibrating, battery mV, battery %, charging, flags, rest baseline mV, MVC mV, achieved acquisition rate in Hz. One line every 100 ms. Flags is a bit field: bit 0 = front end at a rail, bits 1–2 = the next calibration step (0 rest, 1 MVC, 2 verify). The line is longer than a default 20-byte BLE packet, so the firmware splits it and the client reassembles on the newline.
 
-The acquisition rate is counted from real `analogReadMilliVolts()` calls once a second, so it is a measurement of what the loop actually achieved, not the configured 2000 Hz. Expect 1950–2005 Hz; a sustained drop means the loop is being starved.
+The acquisition rate is counted from real `analogReadMilliVolts()` calls once a second, so it measures what the loop actually achieved, not the configured 2000 Hz. The previous BLE build measured 1888 Hz in one short capture. The current notify path sends a negotiated-MTU payload in one notification without a per-line delay; flash this revision and remeasure before claiming a restored 2 kHz rate.
 
 ### From a phone
 

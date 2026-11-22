@@ -38,9 +38,9 @@ SERIAL_COLUMNS = {
     "t": "t_ms",
     "rms": "rms_mV",
     "act": "activation",
-    "batt": None,
-    "rest": None,
-    "mvc": None,
+    "batt": "batt_mV",
+    "rest": "rest_mV",
+    "mvc": "mvc_mV",
 }
 
 

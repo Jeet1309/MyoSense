@@ -19,6 +19,13 @@ This file records what is published, what is deliberately kept local, and why. T
 | `share/README.md` | 2 KB | What the share pack is |
 | `CURRENT_DESIGN.md` | 11 KB | Live decision record: part status, open questions, interpretation rules |
 | `PROJECT_PLAN.md` | 16 KB | Scope, evidence, protocol, phases, risks, validation |
+| `PRELIMINARY_RESULTS.md` | — | Raw observations, descriptive means, caveats and next data to collect |
+| `data/form_comparison_2026-11-22.csv` | — | Machine-readable values from the 22 Nov pilot |
+| `MyoSense_final_results.pptx` | 8.2 MB | Updated 20-slide presentation with circuit schematic, observations and limitations |
+| `ENCLOSURE.md` | — | Enclosure prototype inventory and safety/fit caveats |
+| `box_with_fin*.stl`, `box_with_plate.stl` | — | Printable enclosure iterations |
+| `make_box_stl*.py`, `draw_*views.py`, `preview*.py`, `render3d.py`, `build_viewer.py` | — | CAD generation and preview source |
+| `box_*.png`, `plate_views*.png`, `viewer.html` | — | CAD previews and interactive STL viewer |
 | `DATASETS_AND_HARDWARE.md` | 18 KB | Datasets, hardware trade-offs, wiring, toolchain, safety |
 | `STUDY_GUIDE.md` | 22 KB | 12-module course-aligned curriculum |
 | `LITERATURE_REVIEW.md` | 21 KB | Annotated reading list, tiered by importance |
@@ -35,12 +42,16 @@ This file records what is published, what is deliberately kept local, and why. T
 | `tools/emg_ble.py` | 8 KB | Logs the BLE stream to CSV with a statistics summary |
 | `tools/plot_session.py` | 9 KB | Plots a session (activation with target band, RMS, battery) and prints its statistics |
 | `tools/test_meter_logic.py` | 6 KB | Headless checks for the browser page logic |
+| `tools/test_ble_and_results.py` | — | BLE payload and CSV plotting regression tests |
+| `tools/update_results_deck.py` | — | Rebuilds results slides from the circuit-schematic source deck |
 | `app/meter.html` | 16 KB | Browser app: live activation meter, target zone, rep counter, CSV export |
 | `app/README.md` | 3 KB | How to run the app and why Web Bluetooth needs HTTPS/localhost |
 | `my deep-research-report.md` | 11 KB | Original draft, kept for provenance (its errors are corrected in `RECONCILIATION_AND_ADDITIONS.md`) |
 | `.gitignore` | 1 KB | Keeps the repo clean |
 
-Total published: roughly **1 MB** — mostly the PDF.
+The updated release includes the final presentation and enclosure design files. Raw exercise
+videos are not published as separate files; the presentation contains selected demo clips used
+in the slides. Machine-specific G-code is also kept local.
 
 ---
 
@@ -52,6 +63,10 @@ Total published: roughly **1 MB** — mostly the PDF.
 | `share/references/*.pdf` | 20 MB | Same problem — the curated bundle is for local reading | Same DOIs; most are open access at the publisher |
 | `biomech/` | 19 MB | Instructor's lecture slides (ME 6114), not ours to publish | Link to the course instead |
 | `videos/` | 31 MB | Generated HyperFrames project: renders, caches, logs | Not needed to understand the device |
+| Root `*.mp4` exercise clips | 74 MB | Raw workout footage; avoids publishing duplicate/unedited personal video | Selected demonstration clips are embedded in the final deck |
+| `*.gcode` | 1.9 MB | Printer/profile-specific generated output | Re-slice the STL for the target printer |
+| `Myosense_final.pptx` | 8.9 MB | Original input deck; superseded by `MyoSense_final_results.pptx` | Use the updated results deck |
+| `MyoSense_final_with_circuit_schematic.pptx` | 8.2 MB | User's intermediate source deck; its schematic is retained in the updated results deck | Use `MyoSense_final_results.pptx` |
 | `figures/` | 6.6 MB | Older figures plus team member photographs (personal data) | Not needed; the two new diagrams are in `share/figures/` |
 | `MyoSense_A2_DH803.docx` / `.pptx` | 7 MB | Superseded graded submission, out of date technically | History is summarised in `CURRENT_DESIGN.md` |
 | `EMG Project Communications Subsystem Plan.pdf` | 75 KB | Superseded proposal (SEN0240 / generic ESP32 BOM) | Summarised in `REFERENCES_INDEX.md` |
@@ -59,7 +74,8 @@ Total published: roughly **1 MB** — mostly the PDF.
 | `me6114_project_imu.zip` | 44 KB | Another course's submission | Unrelated |
 | Hardware photos (`WhatsApp Image*.jpeg`, `boosto .jpeg`) | 0.4 MB | Personal photos; not needed once the build is documented | — |
 
-`.gitignore` enforces all of the above, so an accidental `git add .` cannot publish them.
+`.gitignore` enforces the local-footage, G-code and scratch exclusions, so an accidental `git add .`
+will not publish those files.
 
 ---
 
@@ -86,23 +102,19 @@ Notes:
 
 ## 5. Commands
 
-The repo is not yet initialised here. From `D:\SEM -1\dh\project`:
+The working repository is initialised and tracks `origin/main`. To publish a new update from
+`D:\SEM -1\dh\project`:
 
 ```bash
-# one-time setup
-git init
-git branch -M main
-git remote add origin git@github.com:Jeet1309/MyoSense.git
-
 # stage and review what will actually be published
 git add .
 git status --short
 
 # commit
-git commit -m "MyoSense: single-channel sEMG wearable prototype, guide and firmware"
+git commit -m "Describe the update"
 
 # push
-git push -u origin main
+git push origin main
 ```
 
 If the remote already has commits (for example a README created by GitHub), pull first:
@@ -114,25 +126,21 @@ git push -u origin main
 
 ### Verify before pushing
 
-`git status --short` should list roughly 20 files. If you see `references/`, `biomech/`, `videos/`, a `.pptx`, or a `.jpeg`, the ignore rules are not being applied — stop and check `.gitignore`.
+`git status --short` may list the result deck `MyoSense_final_results.pptx` and the enclosure
+STLs/previews. It should **not** list publisher PDFs, course slides, the original source decks,
+standalone `.mp4` footage, `.gcode`, or personal photos.
 
-```bash
-# confirm nothing large slipped in
-git ls-files -s | wc -l
-du -sh .git
+```powershell
+git ls-files | Measure-Object
+Get-ChildItem -File | Sort-Object Length -Descending | Select-Object -First 10 Name,Length
 ```
 
 ---
 
 ## 6. Recommended repository layout on the landing page
 
-The existing `README.md` already works as the landing page. Consider adding three lines at the top so a reader knows where to start:
-
-```
-Read `share/EMG_WEARABLE_FROM_SCRATCH.pdf` first.
-Current hardware state: `CURRENT_DESIGN.md`.
-To rebuild the firmware: `firmware/README.md`.
-```
+The `README.md` landing page links the project overview, current design, preliminary results,
+firmware, app and enclosure files.
 
 ---
 

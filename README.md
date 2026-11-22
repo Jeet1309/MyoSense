@@ -11,37 +11,20 @@ This project is a planned **two-channel surface-EMG (sEMG) biofeedback prototype
 
 ---
 
-## What is in this folder
+## Repository contents
 
-```
-project/
-├─ README.md                     ← you are here (orientation + how to use)
-├─ STUDY_GUIDE.md                ← 12-module course-aligned curriculum (start here to learn)
-├─ PROJECT_PLAN.md               ← full plan: what to build, how to proceed, workstreams, timeline
-├─ CURRENT_DESIGN.md             ← source of truth for current hardware status, pending decisions and interpretation limits
-├─ PROTOTYPE_BENCH_TEST_HANDOFF.md ← next-session hardware identification, safe power and one-channel test procedure
-├─ HARDWARE_BATTERY.md            ← optional battery-level and charging wiring (resistor divider, GPIO1)
-├─ firmware/                      ← team_mvc.ino (USB serial) and team_ble.ino (Bluetooth LE) + firmware/README.md (step-by-step)
-├─ tools/                         ← emg_capture.py (serial log), emg_ble.py (BLE log), emg_plot.py (replay) and plot_session.py (session plots + stats)
-├─ app/                           ← meter.html: browser app that turns the BLE stream into a live activation meter
-├─ MUSCLE_ACTIVATION_AND_EXERCISE_SELECTION.md ← deep-dive on M9/M10: how the body makes EMG, how it varies by exercise, and the 2-muscle %MVC ratio
-├─ share/                         ← share pack: from-scratch guide (Markdown + PDF), citation map and curated local references
-├─ LITERATURE_REVIEW.md          ← annotated reading list (what to read and why), grouped by theme
-├─ DATASETS_AND_HARDWARE.md      ← public datasets, sensor boards, software toolchain, standards
-├─ RECONCILIATION_AND_ADDITIONS.md ← review of your research report: corrections + additions
-├─ REFERENCES_INDEX.md           ← table mapping every downloaded file → citation
-├─ biomech/                       ← ME 6114 Joint Biomechanics slides (S05E01–S05E08) — supports %MVC metric
-├─ R1.pdf / R2.pdf               ← wrist kinematics & functional ROM (validation template)
-├─ Wrist_ROM_Mini_Literature_Review_and_Pilot_Study.pdf  ← wrist-IMU pilot (validation template)
-├─ Wrist joint project at a glance.pdf / Team8_stage2_report.pdf ← team wrist-IMU docs
-└─ references/
-   ├─ pdfs/                      ← 34 papers (PDF where open-access, full-text .txt where not)
-   └─ _download_manifest.json
-```
+| Area | Files |
+|---|---|
+| Design and protocol | `CURRENT_DESIGN.md`, `PROJECT_PLAN.md`, `PROTOTYPE_BENCH_TEST_HANDOFF.md`, `DATASETS_AND_HARDWARE.md`, `HARDWARE_BATTERY.md` |
+| Theory and evidence | `STUDY_GUIDE.md`, `LITERATURE_REVIEW.md`, `MUSCLE_ACTIVATION_AND_EXERCISE_SELECTION.md`, `REFERENCES_INDEX.md` |
+| Results | `PRELIMINARY_RESULTS.md`, `data/form_comparison_2026-11-22.csv`, `MyoSense_final_results.pptx` |
+| Firmware | `firmware/team_mvc/team_mvc.ino` (USB) and `firmware/team_ble/team_ble.ino` (BLE + battery) |
+| App and analysis | `app/meter.html`, `tools/emg_ble.py`, `tools/emg_capture.py`, `tools/plot_session.py`, `tools/test_meter_logic.py` |
+| Enclosure prototype | `ENCLOSURE.md`, STL variants, CAD generators, previews and `viewer.html` |
+| Share guide | `share/EMG_WEARABLE_FROM_SCRATCH.md` + PDF, figures and citation map |
 
-> **Your own report `my deep-research-report.md` is kept here too** — I reviewed it in `RECONCILIATION_AND_ADDITIONS.md` (what to keep, what to fix, what was missing).
-
-> **This folder is not the published repo.** Large, copyrighted or unrelated folders (`references/pdfs/`, `share/references/*.pdf`, `biomech/`, `videos/`, `figures/`) are excluded via `.gitignore`. See `PUBLISHING.md` for what is shared on GitHub and why.
+The local workspace also contains excluded publisher PDFs, course material, scratch files and
+raw exercise footage. See `PUBLISHING.md` for exactly what is public and why.
 
 ---
 

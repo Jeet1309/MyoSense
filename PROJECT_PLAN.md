@@ -125,6 +125,23 @@ Mean/median-frequency decreases can support fatigue analysis in controlled susta
 
 ## 8. Validation and reporting
 
+### Preliminary user-reported observations (22 November 2026)
+
+An informal single-session comparison has been recorded for the lat exercise, a biceps
+exercise, and bench press. Reported activation values and descriptive means are in
+`PRELIMINARY_RESULTS.md` and `data/form_comparison_2026-11-22.csv`. The pattern differed by
+muscle/site: the user-labelled good condition was higher for lat and chest, while the
+user-labelled bad condition was higher for biceps and triceps. Treat these as exploratory
+observations only. Exercise variants, load, tempo, electrode landmarks, trial order and MVC
+details were not recorded, and the good/bad labels were not independently assessed. The
+readings do not validate form detection or indicate relative force.
+
+A separate 12 s BLE telemetry check on the earlier firmware received 113 rows in 11.9 s
+(about 9.5 rows/s) and reported 1888 ADC reads/s. The sensor input was open during that check,
+so its high RMS was not an exercise result. The notification path has since been changed to
+avoid an unconditional per-packet delay; re-flash and remeasure before reporting the revised
+acquisition rate or BLE loss rate.
+
 - **Signal quality:** idle-noise RMS, clipping percentage, missing-sample rate, and mains/artifact spectra.
 - **Repeatability:** repeated trials with same electrode placement; report within-session variability. Repositioning/day-to-day reliability is a later phase.
 - **Rep segmentation:** compare algorithm count/timestamps with manual or video annotations. It does not validate muscle activation.

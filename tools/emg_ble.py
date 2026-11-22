@@ -24,24 +24,35 @@ DEVICE_NAME = "MyoSense-EMG"
 TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e"
 RX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e"
 
-FIELDS = ["t_ms", "mean_mV", "rms_mV", "activation", "calibrating"]
+FIELDS = [
+    "t_ms", "mean_mV", "rms_mV", "activation", "calibrating",
+    "batt_mV", "batt_pct", "charging", "flags", "rest_mV", "mvc_mV", "acq_hz",
+]
 
 
 def parse_payload(text: str, t_ms: float) -> dict | None:
-    """Payload is 'mean,rms,activation,calibrating'."""
+    """Payload is 'mean,rms,activation,calibrating[,batt_mV,batt_pct,charging,flags,rest,mvc,acq]'.
+
+    Older builds send only the first four fields; the rest default to zero.
+    """
     parts = text.strip().split(",")
     if len(parts) < 3:
         return None
     try:
-        return {
-            "t_ms": t_ms,
-            "mean_mV": float(parts[0]),
-            "rms_mV": float(parts[1]),
-            "activation": float(parts[2]),
-            "calibrating": int(float(parts[3])) if len(parts) > 3 else 0,
-        }
+        values = [float(p) for p in parts]
     except ValueError:
         return None
+
+    row = dict.fromkeys(FIELDS, 0.0)
+    row["t_ms"] = t_ms
+
+    order = ["mean_mV", "rms_mV", "activation", "calibrating",
+             "batt_mV", "batt_pct", "charging", "flags", "rest_mV", "mvc_mV", "acq_hz"]
+
+    for name, value in zip(order, values):
+        row[name] = value
+
+    return row
 
 
 async def list_devices(timeout: float) -> int:
@@ -166,6 +177,23 @@ async def capture(args) -> int:
         print(f"Rest activation {rest:.0f}% looks healthy.")
     if ordered[-1] < 1.0:
         print("Signal is flat - check the Candy connection and that OUT is on GPIO4.")
+
+    batt = [r["batt_mV"] for r in rows if r.get("batt_mV", 0) > 2600]
+    if batt:
+        print(f"battery         : {batt[0] / 1000:.2f} V -> {batt[-1] / 1000:.2f} V")
+
+    acq = [r["acq_hz"] for r in rows if r.get("acq_hz", 0) > 0]
+    if acq:
+        print(f"acquisition     : {statistics.median(acq):.0f} Hz reported by the board")
+
+    rest_mv = max((r.get("rest_mV", 0) for r in rows), default=0)
+    mvc_mv = max((r.get("mvc_mV", 0) for r in rows), default=0)
+    if rest_mv or mvc_mv:
+        print(f"calibration     : rest {rest_mv:.2f} mV, MVC {mvc_mv:.2f} mV", end="")
+        if rest_mv > 0.01 and mvc_mv > 0:
+            print(f"  ({mvc_mv / rest_mv:.1f}x noise floor)")
+        else:
+            print()
     return 0
 
 

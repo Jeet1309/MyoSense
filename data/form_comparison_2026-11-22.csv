@@ -1,0 +1,21 @@
+date,time,exercise,muscle,form_label,reading,activation_pct
+2026-11-22,19:05,Lat exercise (variant not recorded),Latissimus dorsi,good,1,68
+2026-11-22,19:05,Lat exercise (variant not recorded),Latissimus dorsi,good,2,78
+2026-11-22,19:05,Lat exercise (variant not recorded),Latissimus dorsi,bad,1,54
+2026-11-22,19:05,Lat exercise (variant not recorded),Latissimus dorsi,bad,2,63
+2026-11-22,19:09,Biceps exercise (variant not recorded),Biceps,good,1,27
+2026-11-22,19:09,Biceps exercise (variant not recorded),Biceps,good,2,33
+2026-11-22,19:09,Biceps exercise (variant not recorded),Biceps,bad,1,44
+2026-11-22,19:09,Biceps exercise (variant not recorded),Biceps,bad,2,53
+2026-11-22,19:12,Bench press,Chest,good,1,66
+2026-11-22,19:12,Bench press,Chest,good,2,69
+2026-11-22,19:12,Bench press,Chest,good,3,60
+2026-11-22,19:12,Bench press,Chest,bad,1,59
+2026-11-22,19:12,Bench press,Chest,bad,2,59
+2026-11-22,19:12,Bench press,Chest,bad,3,55
+2026-11-22,19:12,Bench press,Triceps,good,1,55
+2026-11-22,19:12,Bench press,Triceps,good,2,53
+2026-11-22,19:12,Bench press,Triceps,good,3,50
+2026-11-22,19:12,Bench press,Triceps,bad,1,65
+2026-11-22,19:12,Bench press,Triceps,bad,2,66
+2026-11-22,19:12,Bench press,Triceps,bad,3,70

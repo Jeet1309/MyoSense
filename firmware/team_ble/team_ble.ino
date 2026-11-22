@@ -387,7 +387,10 @@ void notifyLine(const char *text) {
 
   size_t length = strlen(text);
 
-  uint16_t mtu = BLEDevice::getMTU();
+  uint16_t mtu = 23;
+  if (pServer != NULL && pServer->getConnectedCount() > 0) {
+    mtu = pServer->getPeerMTU(pServer->getConnId());
+  }
   size_t chunk = (mtu > 23) ? (size_t)(mtu - 3) : 20;
 
   for (size_t offset = 0; offset < length; offset += chunk) {
@@ -398,7 +401,9 @@ void notifyLine(const char *text) {
     pTx->setValue((uint8_t *)(text + offset), n);
     pTx->notify();
 
-    delay(4);
+    // Yield only between fragments. A negotiated large MTU sends this payload
+    // in one notification and does not pause the acquisition loop.
+    if (offset + n < length) delay(1);
   }
 }
 
