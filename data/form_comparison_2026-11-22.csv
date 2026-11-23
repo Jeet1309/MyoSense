@@ -1,21 +1,25 @@
-date,time,exercise,muscle,form_label,reading,activation_pct
-2026-11-22,19:05,Lat exercise (variant not recorded),Latissimus dorsi,good,1,68
-2026-11-22,19:05,Lat exercise (variant not recorded),Latissimus dorsi,good,2,78
-2026-11-22,19:05,Lat exercise (variant not recorded),Latissimus dorsi,bad,1,54
-2026-11-22,19:05,Lat exercise (variant not recorded),Latissimus dorsi,bad,2,63
-2026-11-22,19:09,Biceps exercise (variant not recorded),Biceps,good,1,27
-2026-11-22,19:09,Biceps exercise (variant not recorded),Biceps,good,2,33
-2026-11-22,19:09,Biceps exercise (variant not recorded),Biceps,bad,1,44
-2026-11-22,19:09,Biceps exercise (variant not recorded),Biceps,bad,2,53
-2026-11-22,19:12,Bench press,Chest,good,1,66
-2026-11-22,19:12,Bench press,Chest,good,2,69
-2026-11-22,19:12,Bench press,Chest,good,3,60
-2026-11-22,19:12,Bench press,Chest,bad,1,59
-2026-11-22,19:12,Bench press,Chest,bad,2,59
-2026-11-22,19:12,Bench press,Chest,bad,3,55
-2026-11-22,19:12,Bench press,Triceps,good,1,55
-2026-11-22,19:12,Bench press,Triceps,good,2,53
-2026-11-22,19:12,Bench press,Triceps,good,3,50
-2026-11-22,19:12,Bench press,Triceps,bad,1,65
-2026-11-22,19:12,Bench press,Triceps,bad,2,66
-2026-11-22,19:12,Bench press,Triceps,bad,3,70
+date,time,exercise,muscle,pair_id,form_label,activation_pct,source,reported_group_n
+2026-11-22,19:05,Lat pulldown,Latissimus dorsi,L1,good,68,report table 3 and chat notes,3
+2026-11-22,19:05,Lat pulldown,Latissimus dorsi,L1,bad,54,report table 3 and chat notes,3
+2026-11-22,19:05,Lat pulldown,Latissimus dorsi,L2,good,78,report table 3 and chat notes,3
+2026-11-22,19:05,Lat pulldown,Latissimus dorsi,L2,bad,63,report table 3 and chat notes,3
+2026-11-22,19:05,Lat pulldown,Latissimus dorsi,L3,good,72,slide 13 value; user identifies as participant 3,3
+2026-11-22,19:05,Lat pulldown,Latissimus dorsi,L3,bad,59,slide 13 value; user identifies as participant 3,3
+2026-11-22,19:09,Lat pulldown,Biceps brachii,L1,good,27,report table 3 and chat notes,3
+2026-11-22,19:09,Lat pulldown,Biceps brachii,L1,bad,44,report table 3 and chat notes,3
+2026-11-22,19:09,Lat pulldown,Biceps brachii,L2,good,33,report table 3 and chat notes,3
+2026-11-22,19:09,Lat pulldown,Biceps brachii,L2,bad,53,report table 3 and chat notes,3
+2026-11-22,19:09,Lat pulldown,Biceps brachii,L3,good,40,slide 14 value; user identifies as participant 3,3
+2026-11-22,19:09,Lat pulldown,Biceps brachii,L3,bad,71,slide 14 value; user identifies as participant 3,3
+2026-11-22,19:12,Chest press,Pectoralis major,C1,good,66,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Pectoralis major,C1,bad,59,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Pectoralis major,C2,good,69,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Pectoralis major,C2,bad,59,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Pectoralis major,C3,good,60,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Pectoralis major,C3,bad,55,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Triceps brachii,C1,good,55,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Triceps brachii,C1,bad,65,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Triceps brachii,C2,good,53,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Triceps brachii,C2,bad,66,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Triceps brachii,C3,good,50,report table 4 and chat notes,3
+2026-11-22,19:12,Chest press,Triceps brachii,C3,bad,70,report table 4 and chat notes,3

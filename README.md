@@ -17,7 +17,7 @@ This project is a planned **two-channel surface-EMG (sEMG) biofeedback prototype
 |---|---|
 | Design and protocol | `CURRENT_DESIGN.md`, `PROJECT_PLAN.md`, `PROTOTYPE_BENCH_TEST_HANDOFF.md`, `DATASETS_AND_HARDWARE.md`, `HARDWARE_BATTERY.md` |
 | Theory and evidence | `STUDY_GUIDE.md`, `LITERATURE_REVIEW.md`, `MUSCLE_ACTIVATION_AND_EXERCISE_SELECTION.md`, `REFERENCES_INDEX.md` |
-| Results and circuit | `PRELIMINARY_RESULTS.md`, `data/form_comparison_2026-11-22.csv`, `MyoSense_final_results.pptx`, [`photo-annotated circuit schematic`](figures/myosense_web_photo_circuit_schematic.png), generator `tools/build_web_photo_circuit_schematic.py` |
+| Results and circuit | Authoritative `MyoSense_Report.pdf`, `PRELIMINARY_RESULTS.md`, `data/form_comparison_2026-11-22.csv`, `MyoSense_final_results.pptx`, and the photo-annotated circuit schematic |
 | Firmware | `firmware/team_mvc/team_mvc.ino` (USB) and `firmware/team_ble/team_ble.ino` (BLE + battery) |
 | App and analysis | `app/meter.html`, `tools/emg_ble.py`, `tools/emg_capture.py`, `tools/plot_session.py`, and BLE/report tests |
 | Enclosure prototype | `ENCLOSURE.md`, STL variants, CAD generators, previews and `viewer.html` |
@@ -30,8 +30,8 @@ raw exercise footage. See `PUBLISHING.md` for exactly what is public and why.
 
 | If you want to… | Open / run |
 |---|---|
-| Read the project report | [`MyoSense_final_results.pptx`](MyoSense_final_results.pptx) (20-slide deck) or [`share/EMG_WEARABLE_FROM_SCRATCH.pdf`](share/EMG_WEARABLE_FROM_SCRATCH.pdf) (technical guide) |
-| See the observed readings | [`PRELIMINARY_RESULTS.md`](PRELIMINARY_RESULTS.md) and the raw 20-row [`CSV`](data/form_comparison_2026-11-22.csv) |
+| Read the authoritative report | [`MyoSense_Report.pdf`](MyoSense_Report.pdf) (15 pages); `MyoSense_final_results.pptx` is the separate, unchanged presentation deck |
+| See the reconciled readings | [`PRELIMINARY_RESULTS.md`](PRELIMINARY_RESULTS.md) and the 24-row [`CSV`](data/form_comparison_2026-11-22.csv) |
 | Build the USB serial version | [`firmware/team_mvc/team_mvc.ino`](firmware/team_mvc/team_mvc.ino); setup in [`firmware/README.md`](firmware/README.md) |
 | Build the BLE + battery-telemetry version | [`firmware/team_ble/team_ble.ino`](firmware/team_ble/team_ble.ino); battery divider details in [`HARDWARE_BATTERY.md`](HARDWARE_BATTERY.md) |
 | Use the live BLE meter | Serve the repo with `python -m http.server 8000`, open `http://localhost:8000/app/meter.html` in Chrome/Edge, then connect to `MyoSense-EMG` |
@@ -45,22 +45,22 @@ raw exercise footage. See `PUBLISHING.md` for exactly what is public and why.
 - Battery telemetry uses two equal 68 kΩ resistors from HW-373 `OUT+` to `OUT−`, midpoint to GPIO1 (ADC1), and common ESP32 ground; firmware divider scale is 2.0. Battery percentage and charging are estimates.
 - Calibration is rest baseline → maximal effort → maximal verification. The activation value is a personal reference-normalized EMG amplitude, **not force or a form score**.
 - Battery percentage is a voltage-based estimate; charging status is inferred. Do not treat either as fuel-gauge accuracy.
-- The preliminary values are one informal, small-n session with incomplete exercise/load/electrode metadata. They do not validate good/bad-form classification.
+- The report describes three participants per exercise group. It tabulates L1/L2 for lat pulldown and C1–C3 for chest press; L3 values identified by the user in slides 13–14 are supplemental in the CSV. This source difference is documented in `PRELIMINARY_RESULTS.md`.
 
 ## Preliminary readings (22 Nov 2026)
 
-| Site | User-labelled good mean | User-labelled bad mean | Difference (good − bad) |
+| Site | Reported good-form mean | Reported bad-form mean | Difference (good − bad) |
 |---|---:|---:|---:|
-| Lat exercise / lat | 73.0 % | 58.5 % | +14.5 percentage points |
-| Biceps exercise / biceps | 30.0 % | 48.5 % | −18.5 percentage points |
-| Bench press / chest | 65.0 % | 57.7 % | +7.3 percentage points |
-| Bench press / triceps | 52.7 % | 67.0 % | −14.3 percentage points |
+| Lat pulldown / latissimus | 72.67 % | 58.67 % | +14.00 percentage points |
+| Lat pulldown / biceps | 33.33 % | 56.00 % | −22.67 percentage points |
+| Chest press / pectoralis | 65.00 % | 57.67 % | +7.33 percentage points |
+| Chest press / triceps | 52.67 % | 67.00 % | −14.33 percentage points |
 
-These are descriptive means of 2 readings per lat/biceps condition and 3 per bench site/condition.
-They are **not** a validated form score or force comparison. Variants, load, tempo, electrode
-placement and MVC details were not recorded. See [`PRELIMINARY_RESULTS.md`](PRELIMINARY_RESULTS.md)
-for raw values and caveats; [`data/form_comparison_2026-11-22.csv`](data/form_comparison_2026-11-22.csv)
-contains every reading.
+The PDF's lat tables show two pairs; L3 (72/59 latissimus and 40/71 biceps) is added from the
+unchanged slides per the user's identification of participant 3. The report PDF and presentation
+deck are not modified. This is not a validated form score or force comparison. See
+[`PRELIMINARY_RESULTS.md`](PRELIMINARY_RESULTS.md) for provenance and
+[`data/form_comparison_2026-11-22.csv`](data/form_comparison_2026-11-22.csv) for every reading.
 
 ---
 

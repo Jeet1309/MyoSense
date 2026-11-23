@@ -63,8 +63,8 @@ def format_cell(cell, text: str, *, fill: RGBColor, color: RGBColor,
 
 def add_results_table(slide) -> None:
     data = [
-        ["Lat exercise / lat", "68, 78", "73.0", "54, 63", "58.5", "+14.5"],
-        ["Biceps exercise / biceps", "27, 33", "30.0", "44, 53", "48.5", "−18.5"],
+        ["Lat pulldown / lat", "68, 78, 72", "72.7", "54, 63, 59", "58.7", "+14.0"],
+        ["Lat pulldown / biceps", "27, 33, 40", "33.3", "44, 53, 71", "56.0", "−22.7"],
         ["Bench press / chest", "66, 69, 60", "65.0", "59, 59, 55", "57.7", "+7.3"],
         ["Bench press / triceps", "55, 53, 50", "52.7", "65, 66, 70", "67.0", "−14.3"],
     ]
@@ -109,9 +109,9 @@ def add_results_table(slide) -> None:
     p.alignment = PP_ALIGN.LEFT
     run = p.add_run()
     run.text = (
-        "Reported app activation values, assumed %. Two readings per lat/biceps condition; "
-        "three per bench site/condition. Exercise variants, load, tempo, electrode placement "
-        "and MVC details were not recorded. Descriptive pilot only."
+        "Report: three participants per exercise group; L1/L2 lat pairs are in the PDF. L3 values "
+        "(from slides 13–14) are user-identified participant 3; original slide footers call them "
+        "illustrative. PDF and deck remain unchanged. Descriptive only."
     )
     run.font.name = "Aptos"
     run.font.size = Pt(10)
@@ -132,11 +132,11 @@ def add_results_table(slide) -> None:
 
     blocks = [
         ("Observed pattern", AMBER, True),
-        ("Good-labelled readings were higher for lat (+14.5 pp) and chest (+7.3 pp). "
-         "Bad-labelled readings were higher for biceps (18.5 pp) and triceps (14.3 pp).", PALE, False),
+        ("Good-labelled readings were higher for lat (+14.0 pp) and chest (+7.3 pp). "
+         "Bad-labelled readings were higher for biceps (22.7 pp) and triceps (14.3 pp).", PALE, False),
         ("Limits", AMBER, True),
-        ("One informal session. User-defined labels; no independent form scoring. "
-         "Exercise/load/placement/MVC metadata are incomplete.", PALE, False),
+        ("Three participants per exercise group in the report. L3 is supplemented from slide "
+         "readouts per user confirmation; no independent form scoring.", PALE, False),
         ("Interpretation", AMBER, True),
         ("These are activation readings, not force or a validated form verdict. "
          "They do not show that a muscle took over.", PALE, False),
@@ -200,28 +200,28 @@ def main() -> int:
 
     # Slides 13–14: replace the old illustrative single-clip values with the reported trials.
     slide13 = prs.slides[12]
-    set_text(slide13.shapes[0], "EXPLORATORY  ·  LAT EXERCISE")
-    set_text(slide13.shapes[1], "Lat activation: user-labelled good vs bad")
-    set_text(slide13.shapes[7], "58.5 %")
-    set_text(slide13.shapes[8], "mean activation · n=2")
-    set_text(slide13.shapes[9], "Reported readings: 54 %, 63 %")
-    set_text(slide13.shapes[14], "73.0 %")
-    set_text(slide13.shapes[15], "mean activation · n=2")
-    set_text(slide13.shapes[16], "Reported readings: 68 %, 78 %")
+    set_text(slide13.shapes[0], "LAT PULLDOWN  ·  L1–L3")
+    set_text(slide13.shapes[1], "Latissimus activation: good vs bad condition")
+    set_text(slide13.shapes[7], "58.7 %")
+    set_text(slide13.shapes[8], "mean activation · n=3")
+    set_text(slide13.shapes[9], "Pairs L1–L3: 54 %, 63 %, 59 %")
+    set_text(slide13.shapes[14], "72.7 %")
+    set_text(slide13.shapes[15], "mean activation · n=3")
+    set_text(slide13.shapes[16], "Pairs L1–L3: 68 %, 78 %, 72 %")
     set_text(slide13.shapes[17],
-             "Lat exercise variant/load not recorded. User's good/bad labels are not independently validated.")
+             "L3 comes from the unchanged slide readout; user identifies it as participant 3. See provenance note.")
 
     slide14 = prs.slides[13]
-    set_text(slide14.shapes[0], "EXPLORATORY  ·  BICEPS EXERCISE")
-    set_text(slide14.shapes[1], "Biceps activation: user-labelled good vs bad")
-    set_text(slide14.shapes[7], "30.0 %")
-    set_text(slide14.shapes[8], "mean activation · n=2")
-    set_text(slide14.shapes[9], "Reported readings: 27 %, 33 %")
-    set_text(slide14.shapes[14], "48.5 %")
-    set_text(slide14.shapes[15], "mean activation · n=2")
-    set_text(slide14.shapes[16], "Reported readings: 44 %, 53 %")
+    set_text(slide14.shapes[0], "LAT PULLDOWN  ·  L1–L3")
+    set_text(slide14.shapes[1], "Biceps activation: good vs bad condition")
+    set_text(slide14.shapes[7], "33.3 %")
+    set_text(slide14.shapes[8], "mean activation · n=3")
+    set_text(slide14.shapes[9], "Pairs L1–L3: 27 %, 33 %, 40 %")
+    set_text(slide14.shapes[14], "56.0 %")
+    set_text(slide14.shapes[15], "mean activation · n=3")
+    set_text(slide14.shapes[16], "Pairs L1–L3: 44 %, 53 %, 71 %")
     set_text(slide14.shapes[17],
-             "Biceps exercise variant/load not recorded. Values are descriptive, not a form score.")
+             "L3 comes from the unchanged slide readout; user identifies it as participant 3. See provenance note.")
 
     # Slide 15 was blank apart from its title and a reserved note card.
     slide15 = prs.slides[14]
@@ -231,18 +231,18 @@ def main() -> int:
     # Slide 16: these software/reporting items are complete; standardised re-testing remains.
     slide16 = prs.slides[15]
     set_text(slide16.shapes[3],
-             " \nPreliminary pilot\n20 user-reported values captured\n"
-             "Means and raw readings added to the report\nPrior BLE run: 1888 Hz; repeat after notify fix\n"
+             " \nPilot report: 3 participants/group\nL1/L2 lat pairs in PDF; L3 supplemental from slides\n"
+             "CSV preserves pair IDs and source\nPrior BLE run: 1888 Hz; repeat after notify fix\n"
              "Standardise load, tempo, placement and MVC\nRepeat trials and verify rep counts", size=12, color=PALE)
     set_text(slide16.shapes[7],
-             "One lifter, small n; no controlled protocol or independent form scoring. "
+             "Small pilot; L3 is slide-derived per user confirmation and not in the PDF tables. "
              "Repeat with fixed load, tempo, range, placement and cue; report all trials.", size=12, color=PALE)
 
     # Slide 17: preliminary observations exist, but they are not validation.
     slide17 = prs.slides[16]
     set_text(slide17.shapes[12], "MVC protocol implemented; repeatability across visits is not measured.")
-    set_text(slide17.shapes[15], "Preliminary one-session values recorded; no controlled accuracy or validation study.")
-    set_text(slide17.shapes[17], "Preliminary observations")
+    set_text(slide17.shapes[15], "Pilot values from three participants per group; no controlled accuracy or validation study.")
+    set_text(slide17.shapes[17], "Pilot data; validation pending")
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     prs.save(args.output)

@@ -23,7 +23,8 @@ This file records what is published, what is deliberately kept local, and why. T
 | `PROJECT_PLAN.md` | 16 KB | Scope, evidence, protocol, phases, risks, validation |
 | `PRELIMINARY_RESULTS.md` | — | Raw observations, descriptive means, caveats and next data to collect |
 | `data/form_comparison_2026-11-22.csv` | — | Machine-readable values from the 22 Nov pilot |
-| `MyoSense_final_results.pptx` | 8.2 MB | Updated 20-slide presentation with circuit schematic, observations and limitations |
+| `MyoSense_Report.pdf` | 1.2 MB | Authoritative 15-page report, uploaded unchanged |
+| `MyoSense_final_results.pptx` | 8.2 MB | Separate 20-slide presentation deck; left unchanged as requested |
 | `ENCLOSURE.md` | — | Enclosure prototype inventory and safety/fit caveats |
 | `box_with_fin*.stl`, `box_with_plate.stl` | — | Printable enclosure iterations |
 | `make_box_stl*.py`, `draw_*views.py`, `preview*.py`, `render3d.py`, `build_viewer.py` | — | CAD generation and preview source |
@@ -98,6 +99,8 @@ Notes:
 - MIT is a permissive software licence; applying it to the prose documents is unusual but harmless and keeps the repository simple.
 - Third-party material is **not** covered and is not redistributed: cited papers belong to their authors and publishers, and their DOIs are listed in `SHARE_REFERENCES.md`.
 - The photo-annotated schematic and final slide deck contain product photographs credited on the schematic and selected demonstration clips; the project licence does not grant rights to reuse those embedded third-party assets.
+- `MyoSense_Report.pdf` contains team identifiers and participant electrode-placement photographs. It is included unchanged at the user's request; keep participant/team permission in mind before further redistribution.
+- The report lists three participants per exercise group. Its lat-pulldown tables contain L1/L2; supporting CSV/notes add the user-confirmed L3 values from unchanged slides 13–14. The original slide footers label those readouts illustrative, so the supplementary L3 provenance is explicitly flagged and the PDF/deck are not silently rewritten.
 - If you later want the documents under CC BY 4.0 instead, add `LICENSE-docs` and state the split in `README.md`.
 - The `README.md` states that this is a student prototype, not a medical device. Keep that sentence if the text is edited.
 

@@ -125,16 +125,21 @@ Mean/median-frequency decreases can support fatigue analysis in controlled susta
 
 ## 8. Validation and reporting
 
-### Preliminary user-reported observations (22 November 2026)
+### Pilot exercise observations (22 November 2026)
 
-An informal single-session comparison has been recorded for the lat exercise, a biceps
-exercise, and bench press. Reported activation values and descriptive means are in
-`PRELIMINARY_RESULTS.md` and `data/form_comparison_2026-11-22.csv`. The pattern differed by
-muscle/site: the user-labelled good condition was higher for lat and chest, while the
-user-labelled bad condition was higher for biceps and triceps. Treat these as exploratory
-observations only. Exercise variants, load, tempo, electrode landmarks, trial order and MVC
-details were not recorded, and the good/bad labels were not independently assessed. The
-readings do not validate form detection or indicate relative force.
+`MyoSense_Report.pdf` is the authoritative, unchanged 15-page report. It describes three
+participants in each exercise group, high-load calibration, Ag/AgCl gel electrodes, and
+sequential single-channel readings: latissimus/biceps during lat pulldowns and
+pectoralis/triceps during chest presses. Its results tables show L1/L2 for the lat group and
+C1–C3 for the chest group. Per the user's correction, the supporting
+`data/form_comparison_2026-11-22.csv` adds L3 values (72/59 latissimus; 40/71 biceps) from
+slides 13–14 as participant 3. Those slide values were originally marked “illustrative only”; the
+user identifies them as the missing participant, so their provenance remains explicitly flagged.
+
+`PRELIMINARY_RESULTS.md` contains the reconciled pair tables and descriptive means. The report
+and presentation deck were not edited. Numeric load, tempo, range of motion and some trial/MVC
+metadata are not documented. The readings show different within-muscle amplitudes across the
+recorded conditions; they do not validate form classification or indicate relative force.
 
 A separate 12 s BLE telemetry check on the earlier firmware received 113 rows in 11.9 s
 (about 9.5 rows/s) and reported 1888 ADC reads/s. The sensor input was open during that check,

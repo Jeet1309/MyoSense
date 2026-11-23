@@ -1,50 +1,78 @@
-# Preliminary Form-Condition Observations
+# MyoSense Pilot Results and Data Provenance
 
-**Recorded:** 22 November 2026, one informal session. Raw values are in
-`data/form_comparison_2026-11-22.csv`.
+The **authoritative submitted report** is `MyoSense_Report.pdf` (15 pages). This supporting
+summary and `data/form_comparison_2026-11-22.csv` reconcile its tables with the third lat-pulldown
+participant values that the user identified in presentation slides. The PDF and presentation
+deck were intentionally left unchanged.
 
-## Results
+## Study and measurement context
 
-The values below are the user's reported MyoSense activation readings. They are treated as
-percentages because the app displays activation in `%`; confirm this interpretation before
-using the values in a final submission. Means are descriptive only. `Good` and `bad` are the
-user's labels, not labels independently assessed by a coach or validated classifier.
+The report describes three participants in each exercise group. It reports lat-pulldown pairs
+L1 and L2, and chest-press pairs C1, C2 and C3. The user identified an additional participant
+pair, L3, from the lat/biceps demo slides: latissimus good 72% / bad 59%, biceps good 40% / bad
+71%. This L3 supplement is included in the CSV and summary below, but is **not in the PDF's
+tables**. The source slides label those video values “Illustrative only”; the user's later
+message identifies them as participant 3, so retain this provenance note when using them.
 
-| Exercise / site | Good readings (%) | Good mean (%) | Bad readings (%) | Bad mean (%) | Good − bad (percentage points) |
-|---|---:|---:|---:|---:|---:|
-| Lat exercise / latissimus (variant not recorded) | 68, 78 | 73.0 | 54, 63 | 58.5 | +14.5 |
-| Biceps exercise / biceps (variant not recorded) | 27, 33 | 30.0 | 44, 53 | 48.5 | −18.5 |
-| Bench press / chest | 66, 69, 60 | 65.0 | 59, 59, 55 | 57.7 | +7.3 |
-| Bench press / triceps | 55, 53, 50 | 52.7 | 65, 66, 70 | 67.0 | −14.3 |
+The report describes sequential measurements with one EMG channel, three Ag/AgCl gel contacts,
+approximately 20 mm active-electrode spacing aligned with the muscle fibres, and REF on a bony
+site. Calibration used a 5 s resting baseline, a 5 s high-load maximal effort and a second 5 s
+maximal verification; the larger MVC peak was retained. Latissimus and biceps were recorded
+sequentially during lat pulldowns; pectoralis and triceps were recorded sequentially during chest
+presses.
 
-## BLE bench telemetry
+## Paired readings
 
-A separate 12 s laptop BLE capture on the earlier firmware received 113 rows in 11.9 s
-(about 9.5 rows/s) and reported 1888 ADC reads/s. Median RMS was 181.85 mV with an open/
-floating sensor input; this is not an exercise or on-body result. The notification path was
-subsequently changed to avoid an unconditional delay. Re-flash and repeat this check before
-reporting the updated acquisition or packet-loss performance.
+Values are reported app activation percentages. Paired differences are `good − bad` in percentage
+points (pp). L1/L2 and C1–C3 are the report's pair identifiers; L3 is the user-confirmed slide
+supplement described above.
 
-## Interpretation
+| Exercise / site | Pair | Good (%) | Bad (%) | Good − bad (pp) | Source |
+|---|---|---:|---:|---:|---|
+| Lat pulldown / latissimus | L1 | 68 | 54 | +14 | Report table 3 |
+| Lat pulldown / latissimus | L2 | 78 | 63 | +15 | Report table 3 |
+| Lat pulldown / latissimus | L3 | 72 | 59 | +13 | Slides 13; user identifies as participant 3 |
+| Lat pulldown / biceps | L1 | 27 | 44 | −17 | Report table 3 |
+| Lat pulldown / biceps | L2 | 33 | 53 | −20 | Report table 3 |
+| Lat pulldown / biceps | L3 | 40 | 71 | −31 | Slides 14; user identifies as participant 3 |
+| Chest press / pectoralis | C1 | 66 | 59 | +7 | Report table 4 |
+| Chest press / pectoralis | C2 | 69 | 59 | +10 | Report table 4 |
+| Chest press / pectoralis | C3 | 60 | 55 | +5 | Report table 4 |
+| Chest press / triceps | C1 | 55 | 65 | −10 | Report table 4 |
+| Chest press / triceps | C2 | 53 | 66 | −13 | Report table 4 |
+| Chest press / triceps | C3 | 50 | 70 | −20 | Report table 4 |
 
-The observations vary by site: the readings are higher in the user-labelled good condition for
-the lat and chest, and higher in the user-labelled bad condition for biceps and triceps. This
-does **not** establish a general relationship between form and muscle activation. Higher or
-lower sEMG amplitude is not a direct measure of force, technique quality, or which muscle
-"takes over".
+## Group summaries
 
-The values are a small descriptive pilot (two readings per lat/biceps condition and three per
-bench-press site/condition), not independent participants or a controlled validation study.
-The available notes do not record the exact lat/biceps exercise variants, load, tempo, range of
-motion, rest interval, electrode landmarks and spacing, MVC trial values, trial order, or whether
-electrodes were moved between conditions. If the one-channel prototype was used, muscle-site
-readings are sequential, not simultaneous. These omissions prevent causal or statistical claims.
+| Exercise / site | Good mean (%) | Bad mean (%) | Mean difference (pp) | Pairs included |
+|---|---:|---:|---:|---:|
+| Lat pulldown / latissimus | 72.67 | 58.67 | +14.00 | L1–L3* |
+| Lat pulldown / biceps | 33.33 | 56.00 | −22.67 | L1–L3* |
+| Chest press / pectoralis | 65.00 | 57.67 | +7.33 | C1–C3 |
+| Chest press / triceps | 52.67 | 67.00 | −14.33 | C1–C3 |
 
-## What to record next
+`*` L3 comes from slide readouts and is absent from the authoritative PDF tables; it is included
+here per the user's identification of that reading as the third participant.
 
-For each trial, record the exercise and muscle site, load, repetitions, tempo, ROM, rest interval,
-electrode type/preparation/landmarks/spacing/orientation, reference site, MVC and rest-baseline
-values, trial order, and the app CSV. Predefine the form cues and have a second person label
-them if possible. Repeat several trials per condition with the same placement; do not move
-electrodes between good/bad trials when the goal is a within-site comparison. Report all raw
-trials and descriptive summaries; avoid significance tests with this sample size.
+## Interpretation and limitations
+
+Within these reported pairs, good-labelled readings are higher for latissimus and pectoralis;
+bad-labelled readings are higher for biceps and triceps. This demonstrates differing displayed
+activation readings in these conditions. It does not establish a universal form rule, muscle
+force, or that one muscle “took over.” EMG amplitude depends on anatomy, electrode placement,
+skin interface, task and MVC reference.
+
+The PDF states three participants per exercise group, but its lat-pulldown tables print only L1
+and L2. The extra L3 values were taken from slides whose original footer calls them illustrative;
+the user later identified them as the omitted participant. Preserve that discrepancy and do not
+present L3 as independently verified against raw records. The report does not state numeric load,
+tempo, range of motion, rest interval, trial order, or independent form-label scoring. No
+statistical significance or accuracy claim is supported by these data.
+
+## BLE bench check (separate from exercise data)
+
+A 12 s laptop BLE capture on the earlier firmware received 113 rows in 11.9 s (about 9.5
+rows/s) and reported 1888 ADC reads/s. Median RMS was 181.85 mV with an open/floating sensor
+input; this was not an exercise or on-body result. The notification path was subsequently
+changed to avoid an unconditional delay. Re-flash and repeat this check before reporting the
+updated acquisition rate or packet-loss performance.

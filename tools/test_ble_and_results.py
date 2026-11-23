@@ -80,7 +80,7 @@ class PreliminaryReportTests(unittest.TestCase):
         path = ROOT / "data" / "form_comparison_2026-11-22.csv"
         with path.open(encoding="utf-8", newline="") as fh:
             rows = list(csv.DictReader(fh))
-        self.assertEqual(len(rows), 20)
+        self.assertEqual(len(rows), 24)
 
         def mean(exercise_part: str, muscle: str, form: str) -> float:
             values = [
@@ -92,12 +92,15 @@ class PreliminaryReportTests(unittest.TestCase):
             ]
             return statistics.mean(values)
 
-        self.assertEqual(mean("Lat", "Latissimus dorsi", "good"), 73.0)
-        self.assertEqual(mean("Lat", "Latissimus dorsi", "bad"), 58.5)
-        self.assertEqual(mean("Biceps", "Biceps", "good"), 30.0)
-        self.assertEqual(mean("Biceps", "Biceps", "bad"), 48.5)
-        self.assertAlmostEqual(mean("Bench press", "Chest", "good"), 65.0)
-        self.assertAlmostEqual(mean("Bench press", "Triceps", "bad"), 67.0)
+        self.assertAlmostEqual(mean("Lat", "Latissimus dorsi", "good"), 72.6667, places=3)
+        self.assertAlmostEqual(mean("Lat", "Latissimus dorsi", "bad"), 58.6667, places=3)
+        self.assertAlmostEqual(mean("Lat", "Biceps brachii", "good"), 33.3333, places=3)
+        self.assertEqual(mean("Lat", "Biceps brachii", "bad"), 56.0)
+        self.assertAlmostEqual(mean("Chest press", "Pectoralis major", "good"), 65.0)
+        self.assertAlmostEqual(mean("Chest press", "Triceps brachii", "bad"), 67.0)
+        l3 = [r for r in rows if r["pair_id"] == "L3"]
+        self.assertEqual(len(l3), 4)
+        self.assertTrue(all("user identifies as participant 3" in r["source"] for r in l3))
 
 
 if __name__ == "__main__":
