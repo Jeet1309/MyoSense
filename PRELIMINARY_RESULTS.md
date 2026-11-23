@@ -1,18 +1,21 @@
 # MyoSense Pilot Results and Data Provenance
 
 The **authoritative submitted report** is `MyoSense_Report.pdf` (15 pages). This supporting
-summary and `data/form_comparison_2026-11-22.csv` reconcile its tables with the third lat-pulldown
-participant values that the user identified in presentation slides. The PDF and presentation
-deck were intentionally left unchanged.
+summary and `data/exercise_pairs_2026-11-22.csv` contain only the six participant experiments:
+three lat-pulldown participants and three chest-press participants, each with good/bad readings
+at the two measured muscle sites. Participant labels are anonymous pair codes only. BLE logger
+and other trial CSVs are excluded. The PDF and presentation deck are left unchanged for the
+planned final-document revision.
 
 ## Study and measurement context
 
-The report describes three participants in each exercise group. It reports lat-pulldown pairs
-L1 and L2, and chest-press pairs C1, C2 and C3. The user identified an additional participant
-pair, L3, from the lat/biceps demo slides: latissimus good 72% / bad 59%, biceps good 40% / bad
-71%. This L3 supplement is included in the CSV and summary below, but is **not in the PDF's
-tables**. The source slides label those video values “Illustrative only”; the user's later
-message identifies them as participant 3, so retain this provenance note when using them.
+The report describes three participants in each exercise group. Its chest-press tables contain
+all three pairs C1–C3. Its lat-pulldown tables contain L1/L2; the user clarified that the two
+chat readings are those two participants and identified the deck's L3 readings as participant 3:
+latissimus good 72% / bad 59%, biceps good 40% / bad 71%. L3 is included in the supporting CSV
+and summaries, but is **not in the PDF tables**. The slide footers call the displayed video
+readouts “Illustrative only”; the user's identification is recorded as the source for L3. No
+participant names are included.
 
 The report describes sequential measurements with one EMG channel, three Ag/AgCl gel contacts,
 approximately 20 mm active-electrode spacing aligned with the muscle fibres, and REF on a bony
@@ -24,23 +27,23 @@ presses.
 ## Paired readings
 
 Values are reported app activation percentages. Paired differences are `good − bad` in percentage
-points (pp). L1/L2 and C1–C3 are the report's pair identifiers; L3 is the user-confirmed slide
-supplement described above.
+points (pp). L1–L3 and C1–C3 are anonymous pair codes for the six participant experiments; they
+are not participant names.
 
 | Exercise / site | Pair | Good (%) | Bad (%) | Good − bad (pp) | Source |
 |---|---|---:|---:|---:|---|
-| Lat pulldown / latissimus | L1 | 68 | 54 | +14 | Report table 3 |
-| Lat pulldown / latissimus | L2 | 78 | 63 | +15 | Report table 3 |
-| Lat pulldown / latissimus | L3 | 72 | 59 | +13 | Slides 13; user identifies as participant 3 |
-| Lat pulldown / biceps | L1 | 27 | 44 | −17 | Report table 3 |
-| Lat pulldown / biceps | L2 | 33 | 53 | −20 | Report table 3 |
-| Lat pulldown / biceps | L3 | 40 | 71 | −31 | Slides 14; user identifies as participant 3 |
-| Chest press / pectoralis | C1 | 66 | 59 | +7 | Report table 4 |
-| Chest press / pectoralis | C2 | 69 | 59 | +10 | Report table 4 |
-| Chest press / pectoralis | C3 | 60 | 55 | +5 | Report table 4 |
-| Chest press / triceps | C1 | 55 | 65 | −10 | Report table 4 |
-| Chest press / triceps | C2 | 53 | 66 | −13 | Report table 4 |
-| Chest press / triceps | C3 | 50 | 70 | −20 | Report table 4 |
+| Lat pulldown / latissimus | L1 | 68 | 54 | +14 | Report table 3 and chat values |
+| Lat pulldown / latissimus | L2 | 78 | 63 | +15 | Report table 3 and chat values |
+| Lat pulldown / latissimus | L3 | 72 | 59 | +13 | Slide 13; user identifies as participant 3 |
+| Lat pulldown / biceps | L1 | 27 | 44 | −17 | Report table 3 and chat values |
+| Lat pulldown / biceps | L2 | 33 | 53 | −20 | Report table 3 and chat values |
+| Lat pulldown / biceps | L3 | 40 | 71 | −31 | Slide 14; user identifies as participant 3 |
+| Chest press / pectoralis | C1 | 66 | 59 | +7 | Report table 4 and chat values |
+| Chest press / pectoralis | C2 | 69 | 59 | +10 | Report table 4 and chat values |
+| Chest press / pectoralis | C3 | 60 | 55 | +5 | Report table 4 and chat values |
+| Chest press / triceps | C1 | 55 | 65 | −10 | Report table 4 and chat values |
+| Chest press / triceps | C2 | 53 | 66 | −13 | Report table 4 and chat values |
+| Chest press / triceps | C3 | 50 | 70 | −20 | Report table 4 and chat values |
 
 ## Group summaries
 
@@ -51,28 +54,28 @@ supplement described above.
 | Chest press / pectoralis | 65.00 | 57.67 | +7.33 | C1–C3 |
 | Chest press / triceps | 52.67 | 67.00 | −14.33 | C1–C3 |
 
-`*` L3 comes from slide readouts and is absent from the authoritative PDF tables; it is included
-here per the user's identification of that reading as the third participant.
+`*` Lat L3 comes from the presentation's slide readouts and is absent from the authoritative PDF
+tables; it is included here as participant 3 per the user's clarification.
 
 ## Interpretation and limitations
 
-Within these reported pairs, good-labelled readings are higher for latissimus and pectoralis;
-bad-labelled readings are higher for biceps and triceps. This demonstrates differing displayed
-activation readings in these conditions. It does not establish a universal form rule, muscle
-force, or that one muscle “took over.” EMG amplitude depends on anatomy, electrode placement,
-skin interface, task and MVC reference.
+Within these six participant experiments, good-form readings are higher for latissimus and
+pectoralis; bad-form readings are higher for biceps and triceps. This describes the recorded
+activation values only. It does not establish a universal form rule, muscle force, or that one
+muscle “took over.” EMG amplitude depends on anatomy, electrode placement, skin interface, task
+and MVC reference.
 
 The PDF states three participants per exercise group, but its lat-pulldown tables print only L1
-and L2. The extra L3 values were taken from slides whose original footer calls them illustrative;
-the user later identified them as the omitted participant. Preserve that discrepancy and do not
-present L3 as independently verified against raw records. The report does not state numeric load,
-tempo, range of motion, rest interval, trial order, or independent form-label scoring. No
-statistical significance or accuracy claim is supported by these data.
+and L2. The supplementary L3 pair is sourced from slides whose original footer calls the video
+readouts illustrative; the user identified them as participant 3. Preserve that discrepancy and
+do not present L3 as independently verified against raw records. The report does not state
+numeric load, tempo, range of motion, rest interval, trial order, or independent form-label
+scoring. No statistical significance or form-accuracy claim is supported by these data. BLE
+logger/bench CSVs are intentionally excluded from this exercise dataset and its means.
 
-## BLE bench check (separate from exercise data)
+## Next measurements to document
 
-A 12 s laptop BLE capture on the earlier firmware received 113 rows in 11.9 s (about 9.5
-rows/s) and reported 1888 ADC reads/s. Median RMS was 181.85 mV with an open/floating sensor
-input; this was not an exercise or on-body result. The notification path was subsequently
-changed to avoid an unconditional delay. Re-flash and repeat this check before reporting the
-updated acquisition rate or packet-loss performance.
+For follow-up experiments, record the exercise and muscle site, load, repetitions, tempo, ROM,
+rest interval, electrode type/preparation/landmarks/spacing/orientation, reference site, MVC and
+rest-baseline values, trial order, and app CSV. Predefine form cues and, if feasible, have a
+second person label them. Report each participant's values separately before group summaries.

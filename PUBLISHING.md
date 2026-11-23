@@ -22,7 +22,7 @@ This file records what is published, what is deliberately kept local, and why. T
 | `CURRENT_DESIGN.md` | 11 KB | Live decision record: part status, open questions, interpretation rules |
 | `PROJECT_PLAN.md` | 16 KB | Scope, evidence, protocol, phases, risks, validation |
 | `PRELIMINARY_RESULTS.md` | — | Raw observations, descriptive means, caveats and next data to collect |
-| `data/form_comparison_2026-11-22.csv` | — | Machine-readable values from the 22 Nov pilot |
+| `data/exercise_pairs_2026-11-22.csv` | — | 24 reported site/condition readings from the six participant experiments only |
 | `MyoSense_Report.pdf` | 1.2 MB | Authoritative 15-page report, uploaded unchanged |
 | `MyoSense_final_results.pptx` | 8.2 MB | Separate 20-slide presentation deck; left unchanged as requested |
 | `ENCLOSURE.md` | — | Enclosure prototype inventory and safety/fit caveats |

@@ -132,20 +132,14 @@ participants in each exercise group, high-load calibration, Ag/AgCl gel electrod
 sequential single-channel readings: latissimus/biceps during lat pulldowns and
 pectoralis/triceps during chest presses. Its results tables show L1/L2 for the lat group and
 C1–C3 for the chest group. Per the user's correction, the supporting
-`data/form_comparison_2026-11-22.csv` adds L3 values (72/59 latissimus; 40/71 biceps) from
-slides 13–14 as participant 3. Those slide values were originally marked “illustrative only”; the
-user identifies them as the missing participant, so their provenance remains explicitly flagged.
-
-`PRELIMINARY_RESULTS.md` contains the reconciled pair tables and descriptive means. The report
-and presentation deck were not edited. Numeric load, tempo, range of motion and some trial/MVC
-metadata are not documented. The readings show different within-muscle amplitudes across the
-recorded conditions; they do not validate form classification or indicate relative force.
-
-A separate 12 s BLE telemetry check on the earlier firmware received 113 rows in 11.9 s
-(about 9.5 rows/s) and reported 1888 ADC reads/s. The sensor input was open during that check,
-so its high RMS was not an exercise result. The notification path has since been changed to
-avoid an unconditional per-packet delay; re-flash and remeasure before reporting the revised
-acquisition rate or BLE loss rate.
+`data/exercise_pairs_2026-11-22.csv` contains only the six participant experiments: three lat
+pulldowns and three chest presses, with both measured sites and good/bad readings. Lat pair L3
+(72/59 latissimus; 40/71 biceps) is supplemented from slides 13–14 per the user's identification
+as participant 3. Those slide values were originally marked “illustrative only,” so provenance is
+flagged. The report and presentation deck were not edited. Other BLE/serial trial CSVs are not
+exercise results and are excluded. Numeric load, tempo, range of motion and some trial/MVC
+metadata are not documented. These readings do not validate form classification or relative
+force.
 
 - **Signal quality:** idle-noise RMS, clipping percentage, missing-sample rate, and mains/artifact spectra.
 - **Repeatability:** repeated trials with same electrode placement; report within-session variability. Repositioning/day-to-day reliability is a later phase.

@@ -17,7 +17,7 @@ This project is a planned **two-channel surface-EMG (sEMG) biofeedback prototype
 |---|---|
 | Design and protocol | `CURRENT_DESIGN.md`, `PROJECT_PLAN.md`, `PROTOTYPE_BENCH_TEST_HANDOFF.md`, `DATASETS_AND_HARDWARE.md`, `HARDWARE_BATTERY.md` |
 | Theory and evidence | `STUDY_GUIDE.md`, `LITERATURE_REVIEW.md`, `MUSCLE_ACTIVATION_AND_EXERCISE_SELECTION.md`, `REFERENCES_INDEX.md` |
-| Results and circuit | Authoritative `MyoSense_Report.pdf`, `PRELIMINARY_RESULTS.md`, `data/form_comparison_2026-11-22.csv`, `MyoSense_final_results.pptx`, and the photo-annotated circuit schematic |
+| Results and circuit | Authoritative `MyoSense_Report.pdf`, `PRELIMINARY_RESULTS.md`, `data/exercise_pairs_2026-11-22.csv` (only the six participant experiments), the unchanged presentation deck and photo-annotated schematic |
 | Firmware | `firmware/team_mvc/team_mvc.ino` (USB) and `firmware/team_ble/team_ble.ino` (BLE + battery) |
 | App and analysis | `app/meter.html`, `tools/emg_ble.py`, `tools/emg_capture.py`, `tools/plot_session.py`, and BLE/report tests |
 | Enclosure prototype | `ENCLOSURE.md`, STL variants, CAD generators, previews and `viewer.html` |
@@ -31,7 +31,7 @@ raw exercise footage. See `PUBLISHING.md` for exactly what is public and why.
 | If you want to… | Open / run |
 |---|---|
 | Read the authoritative report | [`MyoSense_Report.pdf`](MyoSense_Report.pdf) (15 pages); `MyoSense_final_results.pptx` is the separate, unchanged presentation deck |
-| See the reconciled readings | [`PRELIMINARY_RESULTS.md`](PRELIMINARY_RESULTS.md) and the 24-row [`CSV`](data/form_comparison_2026-11-22.csv) |
+| See the six exercise experiments | [`PRELIMINARY_RESULTS.md`](PRELIMINARY_RESULTS.md) and the 24-reading [`CSV`](data/exercise_pairs_2026-11-22.csv) |
 | Build the USB serial version | [`firmware/team_mvc/team_mvc.ino`](firmware/team_mvc/team_mvc.ino); setup in [`firmware/README.md`](firmware/README.md) |
 | Build the BLE + battery-telemetry version | [`firmware/team_ble/team_ble.ino`](firmware/team_ble/team_ble.ino); battery divider details in [`HARDWARE_BATTERY.md`](HARDWARE_BATTERY.md) |
 | Use the live BLE meter | Serve the repo with `python -m http.server 8000`, open `http://localhost:8000/app/meter.html` in Chrome/Edge, then connect to `MyoSense-EMG` |
@@ -45,7 +45,7 @@ raw exercise footage. See `PUBLISHING.md` for exactly what is public and why.
 - Battery telemetry uses two equal 68 kΩ resistors from HW-373 `OUT+` to `OUT−`, midpoint to GPIO1 (ADC1), and common ESP32 ground; firmware divider scale is 2.0. Battery percentage and charging are estimates.
 - Calibration is rest baseline → maximal effort → maximal verification. The activation value is a personal reference-normalized EMG amplitude, **not force or a form score**.
 - Battery percentage is a voltage-based estimate; charging status is inferred. Do not treat either as fuel-gauge accuracy.
-- The report describes three participants per exercise group. It tabulates L1/L2 for lat pulldown and C1–C3 for chest press; L3 values identified by the user in slides 13–14 are supplemental in the CSV. This source difference is documented in `PRELIMINARY_RESULTS.md`.
+- The exercise results dataset contains only six participants/experiments: three lat pulldowns and three bench presses, each with two muscle-site readings and good/bad values. The lat L3 values are sourced from the deck per the user's identification. Bench/serial BLE trial captures are not included in these exercise results.
 
 ## Preliminary readings (22 Nov 2026)
 
@@ -57,10 +57,11 @@ raw exercise footage. See `PUBLISHING.md` for exactly what is public and why.
 | Chest press / triceps | 52.67 % | 67.00 % | −14.33 percentage points |
 
 The PDF's lat tables show two pairs; L3 (72/59 latissimus and 40/71 biceps) is added from the
-unchanged slides per the user's identification of participant 3. The report PDF and presentation
-deck are not modified. This is not a validated form score or force comparison. See
+unchanged slides per the user's identification of participant 3. The six experiments are exactly
+the three lat-pulldown and three bench-press participants. Other logger/trial CSVs are excluded.
+The report PDF and presentation deck are not modified. This is not a validated form score or force comparison. See
 [`PRELIMINARY_RESULTS.md`](PRELIMINARY_RESULTS.md) for provenance and
-[`data/form_comparison_2026-11-22.csv`](data/form_comparison_2026-11-22.csv) for every reading.
+[`data/exercise_pairs_2026-11-22.csv`](data/exercise_pairs_2026-11-22.csv) for every reading.
 
 ---
 

@@ -77,7 +77,7 @@ class SessionCsvTests(unittest.TestCase):
 
 class PreliminaryReportTests(unittest.TestCase):
     def test_source_values_and_descriptive_means(self):
-        path = ROOT / "data" / "form_comparison_2026-11-22.csv"
+        path = ROOT / "data" / "exercise_pairs_2026-11-22.csv"
         with path.open(encoding="utf-8", newline="") as fh:
             rows = list(csv.DictReader(fh))
         self.assertEqual(len(rows), 24)
