@@ -30,7 +30,7 @@ raw exercise footage. See `PUBLISHING.md` for exactly what is public and why.
 
 | If you want to… | Open / run |
 |---|---|
-| Read the authoritative report | [`MyoSense_Report.pdf`](MyoSense_Report.pdf) (15 pages); `MyoSense_final_results.pptx` is the separate, unchanged presentation deck |
+| Read the authoritative report | [`MyoSense_Report.pdf`](MyoSense_Report.pdf) (15 pages). The existing `MyoSense_final_results.pptx` deck is unchanged and still needs its results slide reconciled; deck revision is the next task. |
 | See the six exercise experiments | [`PRELIMINARY_RESULTS.md`](PRELIMINARY_RESULTS.md) and the 24-reading [`CSV`](data/exercise_pairs_2026-11-22.csv) |
 | Build the USB serial version | [`firmware/team_mvc/team_mvc.ino`](firmware/team_mvc/team_mvc.ino); setup in [`firmware/README.md`](firmware/README.md) |
 | Build the BLE + battery-telemetry version | [`firmware/team_ble/team_ble.ino`](firmware/team_ble/team_ble.ino); battery divider details in [`HARDWARE_BATTERY.md`](HARDWARE_BATTERY.md) |

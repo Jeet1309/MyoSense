@@ -24,7 +24,7 @@ This file records what is published, what is deliberately kept local, and why. T
 | `PRELIMINARY_RESULTS.md` | — | Raw observations, descriptive means, caveats and next data to collect |
 | `data/exercise_pairs_2026-11-22.csv` | — | 24 reported site/condition readings from the six participant experiments only |
 | `MyoSense_Report.pdf` | 1.2 MB | Authoritative 15-page report, uploaded unchanged |
-| `MyoSense_final_results.pptx` | 8.2 MB | Separate 20-slide presentation deck; left unchanged as requested |
+| `MyoSense_final_results.pptx` | 8.2 MB | Existing 20-slide presentation deck; left unchanged and still needs its results slide reconciled |
 | `ENCLOSURE.md` | — | Enclosure prototype inventory and safety/fit caveats |
 | `box_with_fin*.stl`, `box_with_plate.stl` | — | Printable enclosure iterations |
 | `make_box_stl*.py`, `draw_*views.py`, `preview*.py`, `render3d.py`, `build_viewer.py` | — | CAD generation and preview source |
